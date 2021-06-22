@@ -1,5 +1,5 @@
-<!DOCTYPE php>
-<php lang="ja">
+<!DOCTYPE html>
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
@@ -93,6 +93,23 @@
             <td><a href="day_result.php"></a></td>
         </tr>
     </table>
+	<table class="cal_php">
+		<tr>
+			<th>日</th>
+			<th>月</th>
+			<th>火</th>
+			<th>水</th>
+			<th>木</th>
+			<th>金</th>
+			<th>土</th>
+		</tr>
+		<tr>
+			{% for w in context['cal[weeks]'] %}
+				<th>{% w %}</th>
+				<td></td>
+			{% endfor %}
+		</tr>
+	</table>
   </div>
 </body>
-</php>
+</html>
