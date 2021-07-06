@@ -23,8 +23,11 @@ $first_month = date('w', strtotime($year.$month.'01')); // w = 初日の曜日
 
 
 $context = [
-	'cal' => [$year, $month, $weeks, $end_month, $first_month],
+	'year' => $year, 
+    'month' => $month, 
+    'weeks' => $weeks,
+    'end_month' => $end_month, 
+    'first_month' => $first_month
 ];
-var_dump($context);
 //出力
 require_once(BASEPATH . '/public/fin.php');
