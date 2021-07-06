@@ -5,17 +5,18 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ログイン</title>
+    <title>ユーザー登録</title>
 </head>
 <body>
-    <h1>ログイン</h1>
+    <h1>ユーザー登録</h1>
     <form action="">
+        ユーザー名：<input type="text"><br>
         メールアドレス：<input type="text"><br>
         パスワード：<input type="password"><br>
-        <button type="submit">ログイン</button>
-        <a href="forget_pass.twig">パスワードを忘れてしまった場合</a><br>
-        <a href="sign_up.twig">アカウント登録</a>
+        パスワード確認：<input type="password"><br>
+        <button type="submit">送信</button>
     </form>
+    <a href="login.twig">戻る</a>
 </body>
 </html>
 {% endblock %}

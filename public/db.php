@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 $dsn = 'mysql:host=localhost;dbname=AccountTakeTaka;charset=UTF8mb4';
 $username = 'AccountTakeTaka';
-$password = 'AccountTakeTaka';
+$password = 'xxxxx';
 $options = [
     \PDO::ATTR_EMULATE_PREPARES => false, // エミュレート無効
     \PDO::MYSQL_ATTR_MULTI_STATEMENTS => false, // 複文無効
