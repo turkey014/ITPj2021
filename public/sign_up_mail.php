@@ -1,23 +1,14 @@
-<?php
-session_start();
+<?php 
+declare(strict_types=1);
+
 // クロスサイトリクエストフォージェリ対策
 $_SESSION['token'] = base64_encode(openssl_random_pseudo_bytes(32));
 $token = $_SESSION['token'];
 // クリックジャギング対策
 header('X-FRAME-OPTIONS: SAMEORIGINE');
 
-// DB
-$user = 'AccountTakeTaka'; //データベースuser名
-$pass = 'xxx'; //DBpass
-$dbName = "AccountTakeTaka"; 
-$host = "localhost";
 
-$errors = array();
-// DB接続
-$dsn = "mysql:host={$host};dbname={$dbName};charset=UTF8mb4";
-$pdo = new PDO($dsn, $user, $password);
-$pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES,false);
-$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+require_once(__DIR__ . '/../libs/init.php');
 
 // 送信ボタンクリックした後の処理
 if(isset($_POST['email'])){
