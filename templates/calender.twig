@@ -1,0 +1,24 @@
+<div class="calendar-container">
+        {{ year }}年
+		{{ month }}月
+        <a href="">先月</a>
+        <a href="">次月</a>
+        <table class="cal_php">
+            <tr>
+                {% for w in weeks %}
+                    <th>{{w}}</th>
+                {% endfor %}
+            </tr>
+            <tr>
+                {% for w in 1..first_month %}
+                    <td></td>
+                {% endfor %}
+                {% for d in 1..end_month %}
+                    <td><a href="day_result.php">{{d}}</a></td>
+                    {% if ((d+first_month) % 7 == 0)  %} 
+                        </tr><tr>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        </table>
+  </div>

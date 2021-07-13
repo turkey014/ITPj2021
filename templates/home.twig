@@ -24,26 +24,32 @@
     <h2><a href="spending.php">総支出</a></h2>
     <p>￥200,000</p>
     
+    
     <div class="calendar-container">
-        {{ year }}年
-		{{ month }}月
+        {{ ym }}
+        <a href="home.php?ym={{prev}}">先月</a>
+        <a href="home.php">当月</a>
+        <a href="home.php?ym={{next}}">次月</a>
+        
         <table class="cal_php">
             <tr>
-                {% for w in weeks %}
-                    <th>{{w}}</th>
+                {% for w, v in aryWeek %}
+                    <th>{{v}}</th>
                 {% endfor %}
             </tr>
-            <tr>
-                {% for w in 1..first_month %}
-                    <td></td>
-                {% endfor %}
-                {% for d in 1..end_month %}
-                    <td><a href="">{{d}}</a></td>
-                    {% if ((d+first_month) % 7 == 0)  %}
-                    </tr><tr>
-                    {% endif %}
-                {% endfor %}
-            </tr>
+			<th>
+				<tr>
+				{% for f in 0..first_week %}
+					<td></td>
+				{% endfor %}
+				{% for d in 1..end_month %}
+					{% if((first_week + d) % 7 == 0 ) %}
+						</tr><tr>
+					{% endif %}
+					<td><a href="day_result.php?ymd={{ym}}-{{d}}">{{ d }}</a></td>
+				{% endfor %}
+				</tr>
+			</th>
         </table>
   </div>
 </body>
