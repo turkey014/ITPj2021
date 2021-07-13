@@ -10,5 +10,5 @@ require_once(BASEPATH . '/vendor/autoload.php');
 
 // Twigインスタンスを生成
 $path = BASEPATH . '/templates';
-$twig = new \Twig\Enviroment( new \Twig\Loader\FilesystemLoader($path) );
+$twig = new \Twig\Environment( new \Twig\Loader\FilesystemLoader($path) );
     
