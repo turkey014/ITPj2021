@@ -1,0 +1,24 @@
+{% extends 'layout.twig' %}
+
+{% block body %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>パスワードを忘れた場合</title>
+</head>
+<body>
+    <h1>パスワードを忘れた場合</h1>
+    <form action="">
+        <label for="email">メールアドレス</label>
+        <br>
+        <input type="mail">
+        <br>
+        <button type="submit">送信</button>
+    </form>
+    
+    <br>
+    <a href="login.twig">戻る</a>
+</body>
+</html>
+{% endblock %}
