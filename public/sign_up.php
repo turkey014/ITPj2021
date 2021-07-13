@@ -1,18 +1,11 @@
 <?php
+declare(strict_types=1);
+
+require_once(__DIR__ . '/../libs/init.php');
 
 $name = $_POST['name'];
 $mail = $_POST['email'];
 $pass = password_hash($_POST['pass'], PASSWORD_DEFAULT);
-$dsn = "mysql:host=localhost; dbname=AccountTakeTaka; charset=utf8";
-$username = "AccountTakeTaka";
-$password = "AccountTakeTaka";
-
-try {
-    $dbh = new PDO($dsn, $username, $password);
-} catch (PDOException $e) {
-    $msg = $e->getMessage();
-    exit;
-}
 
 // フォームに入力されたメールがすでに登録されていないかチェック
 $sql = "SELECT * FROM users WHERE email = :email";
