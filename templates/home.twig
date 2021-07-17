@@ -24,92 +24,33 @@
     <h2><a href="spending.php">総支出</a></h2>
     <p>￥200,000</p>
     
+    
     <div class="calendar-container">
-    <h2>5月</h2>
-    <a href="">＜＜先月</a>
-    <a href="">次月＞＞</a>
-    <table class="calendar">
-        <tr>
-        <th>SUN</th>
-        <th>MON</th>
-        <th>TUE</th>
-        <th>WED</th>
-        <th>THU</th>
-        <th>FRI</th>
-        <th>SAT</th>
-      </tr>
-        <tr>
-            <td><a href="day_result.php"></a></td>
-            <td><a href="day_result.php"></a></td>
-            <td><a href="day_result.php"></a></td>
-            <td><a href="day_result.php"></a></td>
-            <td><a href="day_result.php"></a></td>
-            <td><a href="day_result.php"></a></td>
-            <td><a href="day_result.php">1</a></td>
-        </tr>
-        <tr>
-            <td><a href="day_result.php">2</a></td>
-            <td><a href="day_result.php">3</a></td>
-            <td><a href="day_result.php">4</a></td>
-            <td><a href="day_result.php">5</a></td>
-            <td><a href="day_result.php">6</a></td>
-            <td><a href="day_result.php">7</a></td>
-            <td><a href="day_result.php">8</a></td>
-        </tr>
-        <tr>
-            <td><a href="day_result.php">9</a></td>
-            <td><a href="day_result.php">10</a></td>
-            <td><a href="day_result.php">11</a></td>
-            <td><a href="day_result.php">12</a></td>
-            <td><a href="day_result.php">13</a></td>
-            <td><a href="day_result.php">14</a></td>
-            <td><a href="day_result.php">15</a></td>
-        </tr>
-        <tr>
-            <td><a href="day_result.php">16</a></td>
-            <td><a href="day_result.php">17</a></td>
-            <td><a href="day_result.php">18</a></td>
-            <td><a href="day_result.php">19</a></td>
-            <td><a href="day_result.php">20</a></td>
-            <td><a href="day_result.php">21</a></td>
-            <td><a href="day_result.php">22</a></td>
-        </tr>
-           <tr>
-            <td><a href="day_result.php">23</a></td>
-            <td><a href="day_result.php">24</a></td>
-            <td><a href="day_result.php">25</a></td>
-            <td><a href="day_result.php">26</a></td>
-            <td><a href="day_result.php">27</a></td>
-            <td><a href="day_result.php">28</a></td>
-            <td><a href="day_result.php">29</a></td>
-        </tr>
-           <tr>
-            <td><a href="day_result.php">30</a></td>
-            <td><a href="day_result.php">31</a></td>
-            <td><a href="day_result.php"></a></td>
-            <td><a href="day_result.php"></a></td>
-            <td><a href="day_result.php"></a></td>
-            <td><a href="day_result.php"></a></td>
-            <td><a href="day_result.php"></a></td>
-        </tr>
-    </table>
-	<table class="cal_php">
-		<tr>
-			<th>日</th>
-			<th>月</th>
-			<th>火</th>
-			<th>水</th>
-			<th>木</th>
-			<th>金</th>
-			<th>土</th>
-		</tr>
-		<tr>
-			{% for w in context['cal[weeks]'] %}
-				<th>{% w %}</th>
-				<td></td>
-			{% endfor %}
-		</tr>
-	</table>
+        {{ ym }}
+        <a href="home.php?ym={{prev}}">先月</a>
+        <a href="home.php">当月</a>
+        <a href="home.php?ym={{next}}">次月</a>
+        
+        <table class="cal_php">
+            <tr>
+                {% for w, v in aryWeek %}
+                    <th>{{v}}</th>
+                {% endfor %}
+            </tr>
+			<th>
+				<tr>
+				{% for f in 0..first_week %}
+					<td></td>
+				{% endfor %}
+				{% for d in 1..end_month %}
+					{% if((first_week + d) % 7 == 0 ) %}
+						</tr><tr>
+					{% endif %}
+					<td><a href="day_result.php?ymd={{ym}}-{{d}}">{{ d }}</a></td>
+				{% endfor %}
+				</tr>
+			</th>
+        </table>
   </div>
 </body>
 </html>
