@@ -11,6 +11,9 @@ define('BASEPATH', realpath(__DIR__ . '/..'));
 //var_dump( realpath(__DIR__ . '/..'));
 
 require_once(BASEPATH . '/vendor/autoload.php');
+//
+require_once(BASEPATH . '/libs/Config.php');
+require_once(BASEPATH . '/libs/Db.php');
 
 //
 require_once(BASEPATH . '/libs/Config.php');
@@ -18,5 +21,5 @@ require_once(BASEPATH . '/libs/Db.php');
 
 // Twigインスタンスを生成
 $template_config = Config::get('template');
-$path = BASEPATH . $template_config['dir'];
+$path = BASEPATH . '/templates';
 $twig = new \Twig\Environment( new \Twig\Loader\FilesystemLoader($path) );
