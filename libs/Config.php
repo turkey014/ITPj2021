@@ -6,7 +6,7 @@ if(false === defined('BASEPATH')) {
 }
 
 class Config {
-    public static function get(string $name, $default){
+    public static function get(string $name, $default=null){
         
         if(null === static::$config){
             $env = require(BASEPATH . '/environment.config');
