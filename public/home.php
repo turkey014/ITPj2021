@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 //
-require_once(__DIR__ . '/init.php');
+require_once(__DIR__ . '/../libs/init.php');
 
 // 
 $template_filename = 'home.twig';
@@ -20,20 +20,31 @@ if ($timestamp === false) {
     $timestamp = strtotime($ym . '-01');
 }
 $today = date('Y-m-j');
-
 $prev = date('Y-m', strtotime('-1 month', $timestamp));
 $next = date('Y-m', strtotime('+1 month', $timestamp));
-
 //月末日を取得
 $end_month = date('t', $timestamp);
-
 //朔日の曜日を取得
 $first_week = date('w', strtotime('-1 day',$timestamp));
-
+// 
 $aryWeek = ['日', '月', '火', '水', '木', '金', '土'];
 
+//select テスト用
+$user_id = 1;
 
+// select
+$dbh = Db::getHandle();
+$r = $dbh->beginTransaction();
+//users へのinsert
+$sql = 'select * from registers where user_id = :user_id';
+$pre = $dbh->prepare($sql);
+// プレースホルダに値をバインド
+$pre->bindValue(':user_id', $user_id);
 
+// sql を実行
+$r = $pre->execute();
+$datum = $pre->fetchALL();
+//var_dump($datum);
 $context = [
 	'ym' => $ym,
 	'prev' => $prev,
@@ -44,4 +55,4 @@ $context = [
 	'aryWeek' => $aryWeek
 ];
 //出力
-require_once(BASEPATH . '/public/fin.php');
+require_once(BASEPATH . '/libs/fin.php');
