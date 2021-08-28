@@ -29,22 +29,39 @@ $first_week = date('w', strtotime('-1 day',$timestamp));
 // 
 $aryWeek = ['日', '月', '火', '水', '木', '金', '土'];
 
-//select テスト用
-$user_id = 1;
 
+//select テスト用
+$user_id = 2;
+$date_f = date('Y-m-j', $timestamp);
+$date_l = date('Y-m-t', $timestamp);
+//var_dump($date_f);
+//var_dump($date_l);
 // select
 $dbh = Db::getHandle();
 $r = $dbh->beginTransaction();
 //users へのinsert
-$sql = 'select * from registers where user_id = :user_id';
+$sql = 'SELECT * FROM registers WHERE user_id = :user_id AND date BETWEEN :date_f AND :date_l';
 $pre = $dbh->prepare($sql);
 // プレースホルダに値をバインド
 $pre->bindValue(':user_id', $user_id);
+$pre->bindValue(':date_f', $date_f);
+$pre->bindValue(':date_l', $date_l);
 
 // sql を実行
 $r = $pre->execute();
 $datum = $pre->fetchALL();
-//var_dump($datum);
+// var_dump($datum);
+$date_c = [];// キー=日付　中身=取引内容
+$inc_all = 0;
+$spe_all = 0;
+foreach($datum as $d){
+	$date_c[$d["date"]] = $d;
+	$inc_all += $d["income"];
+	$spe_all += $d["spending"];
+}
+var_dump($date_c);
+
+
 $context = [
 	'ym' => $ym,
 	'prev' => $prev,
@@ -52,7 +69,10 @@ $context = [
 	'today' => $today,
     'end_month' => $end_month, 
     'first_week' => $first_week,
-	'aryWeek' => $aryWeek
+	'aryWeek' => $aryWeek,
+	'contents' => $datum,
+	'incomes' => $inc_all,
+	'spendings' => $spe_all
 ];
 //出力
 require_once(BASEPATH . '/libs/fin.php');

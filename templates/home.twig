@@ -20,9 +20,9 @@
     <h2><a href="asset.php">総資産額</a></h2>
     <p>￥1,000,000</p>
     <h2><a href="income.php">総収入</a></h2>
-    <p>￥1,200,000</p>
+    <p>￥{{incomes}}</p>
     <h2><a href="spending.php">総支出</a></h2>
-    <p>￥200,000</p>
+    <p>￥{{spendings}}</p>
     
     
     <div class="calendar-container">
@@ -46,7 +46,9 @@
 					{% if((first_week + d) % 7 == 0 ) %}
 						</tr><tr>
 					{% endif %}
-					<td><a href="day_result.php?ymd={{ym}}-{{d}}">{{ d }}</a></td>
+					<td>
+						<a href="day_result.php?ymd={{ym}}-{{d}}">{{ d }}</a>
+					</td>
 				{% endfor %}
 				</tr>
 			</th>
