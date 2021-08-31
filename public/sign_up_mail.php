@@ -1,18 +1,6 @@
 <?php 
 declare(strict_types=1);
 
-// クロスサイトリクエストフォージェリ対策
-$_SESSION['token'] = base64_encode(openssl_random_pseudo_bytes(32));
-$token = $_SESSION['token'];
-// クリックジャギング対策
-header('X-FRAME-OPTIONS: SAMEORIGINE');
-
-
-require_once(__DIR__ . '/../libs/init.php');
-
-<?php // register_fin.php
-declare(strict_types=1);
-
 require_once(__DIR__ . '/../libs/init.php');
 
 // 入力データの取得

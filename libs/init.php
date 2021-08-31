@@ -15,10 +15,6 @@ require_once(BASEPATH . '/vendor/autoload.php');
 require_once(BASEPATH . '/libs/Config.php');
 require_once(BASEPATH . '/libs/Db.php');
 
-//
-require_once(BASEPATH . '/libs/Config.php');
-require_once(BASEPATH . '/libs/Db.php');
-
 // Twigインスタンスを生成
 $template_config = Config::get('template');
 $path = BASEPATH . '/templates';
