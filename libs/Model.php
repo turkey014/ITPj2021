@@ -17,7 +17,6 @@ Class ModelBase{
 			// プリペアドステートメントの作成
 			$table_name = static::$table_name;
 			$primary_key = static::$primary_key;
-//			$sql = "SELECT * FROM {$table_name} WHERE {$primary_key} = :id ;";
 			$sql = "SELECT * FROM {$table_name} WHERE {$primary_key} = :user_id AND date BETWEEN :date_f AND :date_l";
 			//var_dump($sql);
 			$pre = $dbh->prepare($sql);
@@ -26,8 +25,6 @@ Class ModelBase{
 			static::bindValues($pre, ['user_id' => $key]);
 			static::bindValues($pre, ['date_f' => $day_f]);
 			static::bindValues($pre, ['date_l' => $day_l]);
-			// SQLを実行
-			//var_dump($pre, $key, $day_f, $day_l);
 			$r = $pre->execute();
 			$datum = $pre->fetchAll(PDO::FETCH_ASSOC); //PDO::FETCH_ASSOC(重複表示を省く);
 			//$datum = $pre->fetch(PDO::FETCH_ASSOC); //
@@ -42,8 +39,6 @@ Class ModelBase{
 			foreach($datum as $k => $v){
 				$obj->datum[$k] = $v;
 			}
-			//var_dump($obj);
-			//$obj->datum[カラム名] = データ;
 			return $obj;
 	}
 	
