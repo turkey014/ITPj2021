@@ -16,3 +16,7 @@ $day_l = '2021-08-31';
 // selectのテスト
 $obj = TestModel::find($id,$day_f,$day_l);
 var_dump($obj);
+var_dump($obj[0]);
+foreach($obj as $v){
+	var_dump($v);
+}
