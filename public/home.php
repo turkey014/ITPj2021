@@ -39,7 +39,7 @@ $date_l = date('Y-m-t', $timestamp);
 // select
 $dbh = Db::getHandle();
 $r = $dbh->beginTransaction();
-//users へのinsert
+//users 
 $sql = 'SELECT * FROM registers WHERE user_id = :user_id AND date BETWEEN :date_f AND :date_l';
 $pre = $dbh->prepare($sql);
 // プレースホルダに値をバインド

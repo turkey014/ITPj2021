@@ -43,4 +43,4 @@ $context = [
 ];
 
 //出力
-require_once(BASEPATH . '/public/fin.php');
+require_once(BASEPATH . '/libs/fin.php');
