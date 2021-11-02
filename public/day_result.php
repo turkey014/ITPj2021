@@ -16,8 +16,11 @@ if (isset($_GET['ymd'])) {
 $month = date('m', strtotime($date));
 $day = date('d', strtotime($date));
 
+// test用
+$user_id = 2;
 
 //DBアクセス
+/*
 //select テスト用
 $user_id = 1;
 // select
@@ -34,12 +37,24 @@ $pre->bindValue(':date', $date);
 $r = $pre->execute();
 $datum = $pre->fetchALL();
 var_dump($datum);
+*/
+
+$test = ModelBase::day_registers($user_id, $date);
+$array = $test->array();
+/*
+foreach($array as $k => $v){
+	var_dump($k, $v);
+}
+*/
+$sum = ModelBase::sums($test);
 
 
 
 $context = [
 	'month' => $month,
 	'day' => $day,
+	'contents' => $array,
+	'sums' => $sum,
 ];
 
 //出力

@@ -34,32 +34,24 @@ $aryWeek = ['日', '月', '火', '水', '木', '金', '土'];
 $user_id = 2;
 $date_f = date('Y-m-j', $timestamp);
 $date_l = date('Y-m-t', $timestamp);
-//var_dump($date_f);
-//var_dump($date_l);
-// select
-$dbh = Db::getHandle();
-$r = $dbh->beginTransaction();
-//users 
-$sql = 'SELECT * FROM registers WHERE user_id = :user_id AND date BETWEEN :date_f AND :date_l';
-$pre = $dbh->prepare($sql);
-// プレースホルダに値をバインド
-$pre->bindValue(':user_id', $user_id);
-$pre->bindValue(':date_f', $date_f);
-$pre->bindValue(':date_l', $date_l);
 
-// sql を実行
-$r = $pre->execute();
-$datum = $pre->fetchALL();
-// var_dump($datum);
-$date_c = [];// キー=日付　中身=取引内容
-$inc_all = 0;
-$spe_all = 0;
-foreach($datum as $d){
-	$date_c[$d["date"]] = $d;
-	$inc_all += $d["income"];
-	$spe_all += $d["spending"];
+
+//当該月の regist を持ってくる
+$test = ModelBase::find($user_id, $date_f, $date_l);
+//print_r($test);
+$array = $test->array();
+//var_dump($array);
+/*
+foreach($ar as $k => $v){
+	var_dump($k,$v);
 }
-var_dump($date_c);
+*/
+
+
+// 収入と支出の合計を配列で返す('income'=> XX,'spending'=>XX)
+$sum = ModelBase::sums($test);
+
+
 
 
 $context = [
@@ -70,9 +62,10 @@ $context = [
     'end_month' => $end_month, 
     'first_week' => $first_week,
 	'aryWeek' => $aryWeek,
-	'contents' => $datum,
-	'incomes' => $inc_all,
-	'spendings' => $spe_all
+	
+	'contents' => $array,
+	'incomes' => $sum['inc'],
+	'spendings' => $sum['spe']
 ];
 //出力
 require_once(BASEPATH . '/libs/fin.php');

@@ -18,7 +18,7 @@
     </header>
     
     <h2><a href="asset.php">総資産額</a></h2>
-    <p>￥1,000,000</p>
+    <p>￥1,000,000</p>{# 未実装 #}
     <h2><a href="income.php">総収入</a></h2>
     <p>￥{{incomes}}</p>
     <h2><a href="spending.php">総支出</a></h2>
@@ -31,27 +31,43 @@
         <a href="home.php">当月</a>
         <a href="home.php?ym={{next}}">次月</a>
         
-        <table class="cal_php">
+        <table class="cal_php" style="table-layout: fixed; width: 750px;border-collapse: collapse" border="1">
             <tr>
                 {% for w, v in aryWeek %}
                     <th>{{v}}</th>
                 {% endfor %}
             </tr>
-			<th>
 				<tr>
-				{% for f in 0..first_week %}
+				{% for f in 0..first_week %}{# 月初めの位置合わせ #}
 					<td></td>
 				{% endfor %}
 				{% for d in 1..end_month %}
-					{% if((first_week + d) % 7 == 0 ) %}
-						</tr><tr>
+				
+					{# 日付検索用文字列の作成 #}
+					{% if d < 10 %}
+						{% set day_format = (ym ~ "-0" ~ d) %} {# フォーマットを合わせる "~" は結合文字 #}
+					{% else %}
+						{% set day_format = (ym ~ "-" ~ d) %}
 					{% endif %}
-					<td>
+					
+					{# 週末で改行 #}
+					{% if((first_week + d) % 7 == 0 ) %}
+				</tr>
+				<tr>
+					{% endif %}				
+				<td>
 						<a href="day_result.php?ymd={{ym}}-{{d}}">{{ d }}</a>
+						{# contentsがあれば表示 #}
+						{% for con in contents %}
+							{% if(day_format == con['date']) %} 
+								<p>{{ con['subject'] }}</p>
+								<p>{{ con['income'] }}</p>
+								<p>{{ con['spending'] }}</p>
+							{% endif %}
+						{% endfor %}
 					</td>
 				{% endfor %}
 				</tr>
-			</th>
         </table>
   </div>
 </body>
