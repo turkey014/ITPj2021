@@ -2,41 +2,24 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>{{month}}月{{day}}日の支出</title>
+    <title>{{month}}月{{day}}日の収支</title>
 </head>
 <body>
-    <h1>{{month}}月{{day}}日の支出</h1>
-    <p>￥2,000</p>
+    <h1>{{month}}月{{day}}日の収支</h1>
+    <h3>{{sums['inc'] - sums['spe']}}円</h3>
     <div>
         <h2>内訳</h2>
-        <div>
-            <h3>￥800</h3>
-            <p>
-                ラーメン <br>
-                #食費　#昼食　#うまい
-            </p>
-        </div>
-        <div>
-            <h3>￥500</h3>
-            <p>
-                弁当 <br>
-                #食費　#夕食　#うまい
-            </p>
-        </div>
-        <div>
-            <h3>￥100</h3>
-            <p>
-                ジュース <br>
-                #食費　#昼食　#飲料
-            </p>
-        </div>
-        <div>
-            <h3>￥600</h3>
-            <p>
-                牛丼 <br>
-                #食費　#朝食　#松屋
-            </p>
-        </div>
+		{% for con in contents %}
+			<h3>
+			{% if con['income'] != NULL  %}
+				+ {{ con['income'] }} 円
+			{% else %}
+				- {{ con['spending'] }} 円
+			{% endif %}	
+			</h3>
+			<p>{{ con['subject'] }}</p>
+			<p>#タグ表示 #未実装</p>
+		{% endfor %}
     </div>
     <div>
         <h2>週間推移</h2>

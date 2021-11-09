@@ -29,22 +29,31 @@ $first_week = date('w', strtotime('-1 day',$timestamp));
 // 
 $aryWeek = ['日', '月', '火', '水', '木', '金', '土'];
 
+
 //select テスト用
-$user_id = 1;
+$user_id = 2;
+$date_f = date('Y-m-j', $timestamp);
+$date_l = date('Y-m-t', $timestamp);
 
-// select
-$dbh = Db::getHandle();
-$r = $dbh->beginTransaction();
-//users へのinsert
-$sql = 'select * from registers where user_id = :user_id';
-$pre = $dbh->prepare($sql);
-// プレースホルダに値をバインド
-$pre->bindValue(':user_id', $user_id);
 
-// sql を実行
-$r = $pre->execute();
-$datum = $pre->fetchALL();
-//var_dump($datum);
+//当該月の regist を持ってくる
+$test = ModelBase::find($user_id, $date_f, $date_l);
+//print_r($test);
+$array = $test->array();
+//var_dump($array);
+/*
+foreach($ar as $k => $v){
+	var_dump($k,$v);
+}
+*/
+
+
+// 収入と支出の合計を配列で返す('income'=> XX,'spending'=>XX)
+$sum = ModelBase::sums($test);
+
+
+
+
 $context = [
 	'ym' => $ym,
 	'prev' => $prev,
@@ -52,7 +61,11 @@ $context = [
 	'today' => $today,
     'end_month' => $end_month, 
     'first_week' => $first_week,
-	'aryWeek' => $aryWeek
+	'aryWeek' => $aryWeek,
+	
+	'contents' => $array,
+	'incomes' => $sum['inc'],
+	'spendings' => $sum['spe']
 ];
 //出力
 require_once(BASEPATH . '/libs/fin.php');
