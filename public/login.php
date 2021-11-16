@@ -8,10 +8,11 @@ try{
     // emailとpassの取得
     $email = strval($_POST['email'] ?? '');
     $pw = strval($_POST['pw'] ?? '');
+    //$pw = password_hash($pw, PASSWORD_DEFAULT);
     
     // email と pw を検証
     if(('' === $email) || ('' === $pw)){
-        throw new \Exception('');
+        throw new \Exception('brank');
     }
     
     // CSRF tokenのチェック
@@ -30,14 +31,24 @@ try{
     $pre->execute();
     $users = $pre->fetch(PDO::FETCH_ASSOC);
     if(false === $users){
-        throw new \Exception('');
+        throw new \Exception('record');
     }
     
     // パスワードを検証
     if(false === password_verify($pw, $users['password'])){
-        throw new \Exception('');
+        throw new \Exception('pass');
     }
 }catch(\Throwable $e){
+    
+    echo "<pre>";
+    //var_dump($session_token);
+    //var_dump($form_token);
+    //var_dump($_POST['csrf_token']);
+    var_dump($pw);
+    var_dump($users['password']);
+    var_dump($e->getMessage()); exit;
+    echo "</pre>";
+    
     // emailを残す(データの持ち回り)
     $_SESSION['flash']['email'] = $email;
     $_SESSION['flash']['error'] = true;

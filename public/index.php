@@ -14,7 +14,7 @@ $template_filename = 'index.twig';
 $context = [
     'login_email' => $session['email'] ?? '',
     'login_error' => $session['error'] ?? false,
-    'csfr_token' => $token,
+    'csrf_token' => $token,
 ];
 
 require_once(BASEPATH . '/libs/fin.php');

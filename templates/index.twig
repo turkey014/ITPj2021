@@ -2,12 +2,7 @@
 
 {% block body %}
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>ログイン</title>
-</head>
-<body>
+
     <h1>ログイン</h1>
     {% if login_error == true %}<div>ログインでエラーが発生しました。</div>{% endif %}
     <form action="./login.php" method="POST">
@@ -18,6 +13,4 @@
         <a href="forget_pass.twig">パスワードを忘れてしまった場合</a><br>
         <a href="sign_up.php">アカウント登録</a>
     </form>
-</body>
-</html>
 {% endblock %}

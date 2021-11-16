@@ -42,7 +42,7 @@ $r = $pre->execute();
 //var_dump($r);
 
 $datum = $pre->fetch(\PDO::FETCH_ASSOC);
-var_dump($datum);
+//var_dump($datum);
 if(false === $datum){
     // XXX 本来はエラー画面へ遷移
     echo "tokenが見つかりませんでした";
@@ -57,7 +57,7 @@ $pre->bindValue(':email', $datum['email']);
 $pre->bindValue('user_id', $datum['user_id']);
 // SQLを実行
 $r = $pre->execute();
-var_dump($r);
+//var_dump($r);
 
 // tokenを消す
 $sql = 'delete from activations where activation_token = :activation_token;';
@@ -67,10 +67,10 @@ $pre = $dbh->prepare($sql);
 $pre->bindValue(':activation_token', $token);
 // SQLを実行
 $r = $pre->execute();
-var_dump($r);
+//var_dump($r);
 
 // トランザクション終了
 $r = $dbh->commit(); // XXX
 
 // 完了画面
-echo 'fin'; // 後でlocationに書き換える
+header('Location: ./sign_up_fin_all.php'); // 後でlocationに書き換える
