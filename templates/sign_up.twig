@@ -9,14 +9,20 @@
 </head>
 <body>
     <h1>ユーザー登録</h1>
-    <form action="">
-        ユーザー名：<input type="text"><br>
-        メールアドレス：<input type="text"><br>
-        パスワード：<input type="password"><br>
-        パスワード確認：<input type="password2"><br>
+    {% if error_messages|length %}
+    エラー<br>
+        {% for k, v in error_messages %}
+            {{ v }}<br>
+        {% endfor %}
+    {% endif %}
+    <form action="./sign_up_mail.php" method="post">
+        ユーザー名：<input name="name" type="text" value="{{ data.name }}"><br>
+        メールアドレス：<input name="email" type="text" value="{{ data.email }}"><br>
+        パスワード：<input name="password" type="password"><br>
+        パスワード確認：<input name="password2" type="password2"><br>
         <button type="submit">送信</button>
     </form>
-    <a href="login.twig">戻る</a>
+    <a href="index.twig">戻る</a>
 </body>
 </html>
 {% endblock %}

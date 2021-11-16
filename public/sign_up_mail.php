@@ -26,9 +26,6 @@ foreach($params as $col_name => $v){
         return strtolower(trim($v)); // trim() 文字列の先頭および末尾にあるホワイトスペースを取り除く
     }, $validates);
 //var_dump($validates); continue;
-// in_array と isset と array_key_exists
-// XXXX
-    
     
     // 必須入力のチェック(email,password,password2)
     if(true === in_array('must', $validates, true)){
@@ -69,13 +66,13 @@ $r = $dbh->beginTransaction(); // XXX
 
 // usersへのinsert
 // 準備された文（プリペアドステートメント）の用意
-$sql = 'insert into users(user_name, password, created_at, update_at) values(:user_name, :password, :created_at, :uploaded_at);';
+$sql = 'insert into users(user_name, password, created_at, updated_at) values(:user_name, :password, :created_at, :updated_at);';
 $pre = $dbh->prepare($sql);
 //var_dump($pre);
 
 // プレースホルダに値をバインド
 $pre->bindValue(':user_name', $data['name']);
-$pre->bindValue(':password', password_hush($data['password'], PASSWORD_DEFAULT));
+$pre->bindValue(':password', password_hash($data['password'], PASSWORD_DEFAULT));
 $now_date_string = date('Y-m-d H:i:s');
 $pre->bindValue(':created_at', $now_date_string);
 $pre->bindValue(':updated_at', $now_date_string);
@@ -110,7 +107,7 @@ $dbh->commit();
 
 // email送信
 // Create the Transport
-$transport = new Swift_SmptTransport('localhost',25);
+$transport = new Swift_SmtpTransport('localhost',25);
 // Create the Mailer using your created Transport
 $mailer = new Swift_Mailer($transport);
 
