@@ -26,9 +26,6 @@ foreach($params as $col_name => $v){
         return strtolower(trim($v)); // trim() 文字列の先頭および末尾にあるホワイトスペースを取り除く
     }, $validates);
 //var_dump($validates); continue;
-// in_array と isset と array_key_exists
-// XXXX
-    
     
     // 必須入力のチェック(email,password,password2)
     if(true === in_array('must', $validates, true)){
@@ -69,13 +66,69 @@ $r = $dbh->beginTransaction(); // XXX
 
 // usersへのinsert
 // 準備された文（プリペアドステートメント）の用意
-$sql = 'insert into users(user_name, password, created_at, update_at) values(:user_name, :password, :created_at, :uploaded_at);';
+$sql = 'insert into users(user_name, password, created_at, updated_at) values(:user_name, :password, :created_at, :updated_at);';
 $pre = $dbh->prepare($sql);
 //var_dump($pre);
 
 // プレースホルダに値をバインド
 $pre->bindValue(':user_name', $data['name']);
-$pre->bindValue(':password', password_hush($data['password'], PASSWORD_DEFAULT));
+$pre->bindValue(':password', password_hash($data['password'], PASSWORD_DEFAULT));
 $now_date_string = date('Y-m-d H:i:s');
 $pre->bindValue(':created_at', $now_date_string);
 $pre->bindValue(':updated_at', $now_date_string);
+
+// SQLを実行
+$r = $pre->execute();
+//var_dump($r);
+// user_idを把握
+$user_id = $dbh->lastInsertId();
+// var_dump($user_id);
+
+// アクティベーションのDB登録とemail送信
+$activation_token = bin2hex(random_bytes(64));
+//var_dump($activation_token);
+$sql = 'insert into activations(activation_token, user_id, email, activation_ttl, created_at) values(:activation_token, :user_id, :email, :activation_ttl, :created_at);';
+$pre = $dbh->prepare($sql);
+//var_dump($pre);
+
+// プレースホルダに値をバインド
+$pre->bindValue(':activation_token', $activation_token);
+$pre->bindValue(':user_id', $user_id);
+$pre->bindValue(':email', $data['email']);
+$pre->bindValue(':activation_ttl', date('Y-m-d H:i:s', time() + 86400));
+$pre->bindValue(':created_at', $now_date_string);
+
+// SQLを実行
+$r = $pre->execute();
+
+// COMMIT
+$dbh->commit();
+
+
+// email送信
+// Create the Transport
+$transport = new Swift_SmtpTransport('localhost',25);
+// Create the Mailer using your created Transport
+$mailer = new Swift_Mailer($transport);
+
+// メールの本文を作成
+$body = $twig->render('email/sign_up.twig', ['activation_token' => $activation_token]);
+
+// Create a message
+$message = (new Swift_Message('ユーザー登録用アクティべーションメール'))
+    ->setFrom(['register@dev2.m-fr.net' => 'register'])  // どういう処理なのか後で質問するor調べる
+    ->setTo($data['email'])
+    ->setBody($body)
+    ;
+
+var_dump($message); 
+// XXX 今はメールを送らないので、確認用に↓↓↓のコード
+$_SESSION['activation_token'] = $activation_token; // XXX 今はemailで送らないのでデバッグ用です。
+
+/* Send the message
+$result = $mailer->send($message);
+var_dump($result);
+*/
+
+// 完了画面に遷移
+header('Location: ./sign_up_fin_print.php');
