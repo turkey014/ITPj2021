@@ -11,17 +11,16 @@ Class Modelmine{
 		
 		/* selectの発行 */
 		// プリペアドステートメントの作成
-		$table_name = static::$table_name;
+		// $table_name = static::$table_name;
 		$primary_key = static::$primary_key;
-		$sql = "SELECT * FROM {$table_name} WHERE {$primary_key} = :user_id AND date BETWEEN :date_f AND :date_l";
+		$sql = "SELECT * FROM registers WHERE {$primary_key} = :user_id AND date BETWEEN :date_f AND :date_l";
 		//var_dump($sql);
 		$pre = $dbh->prepare($sql);
 		
 		// プレースホルダにバインド
 		/* メソッドをうまく使えていない */
-		static::bindValues($pre, ['user_id' => $key]);
-		static::bindValues($pre, ['date_f' => $day_f]);
-		static::bindValues($pre, ['date_l' => $day_l]);
+		static::bindValues($pre, ['user_id' => $key, 'date_f' => $day_f, 'date_l' => $day_l]);
+		
 		$r = $pre->execute();
 		$datum = $pre->fetchAll(PDO::FETCH_ASSOC); //PDO::FETCH_ASSOC(重複表示を省く);
 		
@@ -38,28 +37,84 @@ Class Modelmine{
 		return $obj;
 	}
 	
-	public static function create(array $datum, string $flg) : ?static{
+	public static function create(array $datum) : ?static{
 		
 		// DBハンドルの取得
 		$dbh = static::getDbHandle();
+		//key(カラム群)の把握
 		$keys = array_keys($datum);
+		// カラム名のセキュリティチェック
 		static::checkColumn($keys);
-		/* insertの発行 */
+		//var_dump($keys);
+		$keys_string = implode(', ', array_map(function($k) {
+			return "`{$k}`";
+		}, $keys));// XXX カラム名の``でエスケープ
+		//
+		$holder_keys = array_map(function($k){
+			return ":{$k}";
+		}, $keys);
+		
+		$holder_keys_string = implode(', ', $holder_keys);
+		
+		// insertの発行 
 		// プリペアドステートメントの作成
-		$table_name = static::$table_name;
+		//$table_name = static::$table_name;
 		$primary_key = static::$primary_key;
-		$sql = "INSERT INTO {$table_name}(`user_id`,`date`,`subject`, {$flg}, `created_at`) WHERE {$primary_key} = :user_id;";
-	var_dump($flg);exit;
+		$sql = "INSERT INTO registers ({$keys_string}) VALUES({$holder_keys_string});";
+		
+		//var_dump($keys_string,$holder_keys_string);exit;
 
 		$pre = $dbh->prepare($sql);
 		
 		// プレースホルダにバインド
-		/* メソッドをうまく使えていない */
-		static::bindValues($pre, ['user_id' => $key]);
-		static::bindValues($pre, ['date_f' => $day_f]);
-		static::bindValues($pre, ['date_l' => $day_l]);
+		static::bindValues($pre, $datum);
 		$r = $pre->execute();
-		exit;
+		//var_dump($r);exit;
+		
+		/* tags tableに追加 */
+		//直前のregist_idを取得
+		//$regist_id = $dbh->lastInsertId();
+		
+		//static::tag_add($regist_id);
+		// 入れたデータを格納
+		$obj = new static();
+		foreach($datum as $k => $v){
+			$obj->datum[$k] = $v;
+		}
+		// もし「SERIAL(auto_increment)」ならIDを取得して格納する
+		if(true === static::$auto_increment){
+			$primary_key = static::$primary_key;
+			$obj->datum[$primary_key] = $dbh->lastInsertId(); 
+		}
+		return $obj;
+		
+	}
+	
+	// tags に　insert する
+	public static function tag_create(int $id, array $tags){
+		
+		// DBハンドルの取得
+		$dbh = static::getDbHandle();
+		
+		// insertの発行 
+		// プリペアドステートメントの作成
+		//直前のregist_idを取得
+		$regist_id = $dbh->lastInsertId();
+		$sql = "INSERT INTO tags (`regist_id`,`tag_name`,`user_id`) VALUES(:regist_id, :tag, :user_id);";
+		//var_dump($sql);
+		$pre = $dbh->prepare($sql);
+		
+		$pre->bindValue(":regist_id", $regist_id, \PDO::PARAM_INT);
+		$pre->bindValue(":user_id", $id, \PDO::PARAM_INT);
+		
+		foreach($tags as $v){
+			var_dump($v);
+			// プレースホルダにバインド
+			$pre->bindValue(":tag", $v, \PDO::PARAM_STR);
+			$pre->execute();
+		}
+		//var_dump($r);exit;
+		
 	}
 	
 	public function __get(string $name){
@@ -117,10 +172,8 @@ Class Modelmine{
 	protected static $auto_increment = false;
 	protected $datum = [];
 	
-	
-	
 	// register テーブル用
-	protected static $table_name = 'registers';
+	// protected static $table_name = 'registers';
 	protected static $primary_key = 'user_id';
 	
 	// sums関数(自作)

@@ -6,17 +6,27 @@ require_once(BASEPATH . '/Model/Modelmine.php');
  */
 
 function accountsCreate(){
-	var_dump($_POST);
+	//var_dump($_POST);exit;
+	// $user_id = $_SESSION['users']['auth']['user_id'];
+	$user_id = 2;
 	$type = strval($_POST['type'] ?? '');
 	$date = strval($_POST['date'] ?? '');
 	$subject = strval($_POST['subject'] ?? '');
 	$amount = strval($_POST['amount'] ?? 0);
-	// var_dump($date, $subject, $amount);
+	
+	//タグの取得
+	$tags = [];
+	foreach($_POST['tags'] as $v){
+		if('' !== $v){
+			$tags[] = strval($v);
+		}
+	}
+	//var_dump($tags);exit;
 
 	// validate
 	$error = [];
 	// type
-	if($type != 'income' || $type != 'spending'){
+	if(($type != 'income') && ($type != 'spending') ){
 		$error['type'] = true;
 	}
 	// 日付
@@ -34,7 +44,7 @@ function accountsCreate(){
 	if(0 >= $amount){
 		$error['amount'] = true; 
 	}
-
+	//var_dump($error);exit;
 	//
 	if([] !== $error){
 		// accounting配下にデータをまとめとく
@@ -43,27 +53,34 @@ function accountsCreate(){
 		$_SESSION['flash']['accounting']['date'] = $date;
 		$_SESSION['flash']['accounting']['subject'] = $subject;
 		$_SESSION['flash']['accounting']['amount'] = $amount;
+		// 手直し必須
+		$_SESSION['flash']['accounting']['tags'] = $tags;
 		//
+		//var_dump($_SESSION['flash']['accounting']);exit;
 		header('Location: ./home.php');
 		exit;
 	}
-	
 	
 	// ここまできたら validate OK
 	// データのINSERT
 
 	$data = [
 		//'user_id' => $_SESSION['users']['auth']['user_id'],
-		'user_id' => 2,
+		'user_id' => $user_id,
 		'date' => $date,
 		'subject' => $subject,
-		'amount' => $amount,
+		$type => $amount,
 		'created_at' => date('Y-m-d H:i:s'),
 	];
-	$r = Modelmine::create($data, $type);
-	
+	//var_dump($data);exit;
+	$r = Modelmine::create($data);
+	//var_dump($r);exit;
+	if('' !== $tags){
+		// タグの追加
+		Modelmine::tag_create($user_id, $tags);
+	};
 	// top pageに遷移
 	$_SESSION['flash']['accounting']['success'] = true;
-	header('Location: ./top.php'); // 二重投稿を避けるためにリダイレクトをかけたほうがいい
+	header('Location: ./home.php'); // 二重投稿を避けるためにリダイレクトをかけたほうがいい
 	exit;
 }
