@@ -1,0 +1,15 @@
+{# sign_up_fin_print.twig #}
+{% extends 'layout.twig' %}
+
+{% block body %}
+<h1>アカウント登録</h1>
+メールを確認してアクティベーションコードを入力してください。<br>
+<hr>
+アクティベーション<br>
+<form action="./sign_up_activation.php" method="post">
+emailに送られたコード <input name="token" type="text"><br>
+<button>認証する</button>
+</form>
+
+<a href="./index.twig">TOPはこちら</a>
+{% endblock %}

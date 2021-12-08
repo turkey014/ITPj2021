@@ -2,20 +2,15 @@
 
 {% block body %}
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>ログイン</title>
-</head>
-<body>
+
     <h1>ログイン</h1>
-    <form action="">
-        メールアドレス：<input type="text"><br>
-        パスワード：<input type="password"><br>
+    {% if login_error == true %}<div>ログインでエラーが発生しました。</div>{% endif %}
+    <form action="./login.php" method="POST">
+        メールアドレス：<input name="email" value="{{ login_email }}" type="email"><br>
+        パスワード：<input name="pw" type="password"><br>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <button type="submit">ログイン</button>
         <a href="forget_pass.twig">パスワードを忘れてしまった場合</a><br>
-        <a href="sign_up.twig">アカウント登録</a>
+        <a href="sign_up.php">アカウント登録</a>
     </form>
-</body>
-</html>
 {% endblock %}

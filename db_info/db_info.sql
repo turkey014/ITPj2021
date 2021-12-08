@@ -30,3 +30,15 @@ CREATE TABLE `AccountTakeTaka`.`tags` (
     FOREIGN KEY (user_id) REFERENCES users(user_id), 
     FOREIGN KEY (regist_id) REFERENCES registers(regist_id)
 );
+
+
+
+CREATE TABLE `activations` (
+  `activation_token` varbinary(128) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `email` varbinary(255) NOT NULL DEFAULT '',
+  `activation_ttl` datetime NOT NULL,
+  `created_at` datetime  NOT NULL,
+  PRIMARY KEY (`activation_token`),
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+);
