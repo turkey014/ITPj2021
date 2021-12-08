@@ -2,7 +2,6 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-	
     <title>Home</title>
 </head>
 <body>
@@ -35,9 +34,12 @@
 		科目<input name="subject" value="{{accounting.subject}}"><br>
 		金額<input name="amount" value="{{accounting.amount}}"><br>
 		タグ<div id="test">
+			{% for t in accounting.tags %}
+				<input type="text" name="tags[]" value="{{t}}"></input><br>
+			{% endfor %}
 			<input type="button" value="タグを追加" onclick="addColum()">
 			<script>
-				{% include('test.js') %}
+				{% include('JavaScript/home.js') %}
 			</script>
 		</div>
 		<button>入力</button>

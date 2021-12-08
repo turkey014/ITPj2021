@@ -46,7 +46,6 @@ if (isset($_POST['type'])) {
 }
 
 //当該月の regist を持ってくる
-//$test = ModelBase::find($user_id, $date_f, $date_l);
 $test = Modelmine::select_month($user_id, $ym);
 
 $array = $test->array();

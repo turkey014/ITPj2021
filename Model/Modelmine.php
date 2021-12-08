@@ -116,6 +116,65 @@ Class Modelmine{
 		//var_dump($r);exit;
 		
 	}
+	// day_registers
+	public static function day_registers($key, $date){
+		// DBハンドルの取得
+		$dbh = static::getDbHandle();
+		 
+		/* selectの発行 */
+		// プリペアドステートメントの作成
+		// $table_name = static::$table_name;
+		$primary_key = static::$primary_key;
+		$sql = "SELECT * FROM registers WHERE {$primary_key} = :user_id AND date= :date;";
+		//var_dump($sql);
+		$pre = $dbh->prepare($sql);
+		
+		// プレースホルダにバインド
+		static::bindValues($pre, ['user_id' => $key]);
+		static::bindValues($pre, ['date' => $date]);
+		$r = $pre->execute();
+		$datum = $pre->fetchAll(PDO::FETCH_ASSOC); //PDO::FETCH_ASSOC(重複表示を省く);
+		//$datum = $pre->fetch(PDO::FETCH_ASSOC); //
+		//var_dump($datum);
+		// keyに対応するデータがなければNULL return 
+		if(false === $datum){
+			return null;
+		}
+		
+		// 取り出せたデータを「どこか」に格納する
+		$obj = new static();
+		//var_dump($datum);
+		foreach($datum as $k => $v){
+			// 取得したregister_id でtagテーブルのデータを追加する
+			$tags = static::get_tag($v["regist_id"]);
+			$v['tags'] = $tags;
+			
+			$obj->datum[$k] = $v;
+		}
+		return $obj;
+	}
+	private static function get_tag(int $regist_id){
+		// DBハンドルの取得
+		$dbh = static::getDbHandle();
+		 
+		/* selectの発行 */
+		// プリペアドステートメントの作成
+		$sql = "SELECT tag_name FROM tags WHERE regist_id = :regist_id;";
+		$pre = $dbh->prepare($sql);
+		
+		// プレースホルダにバインド
+		static::bindValues($pre, ['regist_id' => $regist_id]);
+		$r = $pre->execute();
+		$datum = $pre->fetchAll(PDO::FETCH_ASSOC); //PDO::FETCH_ASSOC(重複表示を省く);
+		//$datum = $pre->fetch(PDO::FETCH_ASSOC); //
+		//var_dump($datum);
+		// keyに対応するデータがなければNULL return 
+		if(false === $datum){
+			return null;
+		}
+		$test = array_column($datum, "tag_name");
+		return $test;
+	}
 	
 	public function __get(string $name){
 		//
