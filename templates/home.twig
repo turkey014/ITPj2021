@@ -20,24 +20,44 @@
     <h2><a href="asset.php">総資産額</a></h2>
     <p>￥1,000,000</p>{# 未実装 #}
     <h2><a href="income.php">総収入</a></h2>
-    <p>￥{{incomes}}</p>
+    <p>￥{{incomes | number_format }}</p>
     <h2><a href="spending.php">総支出</a></h2>
-    <p>￥{{spendings}}</p>
-    
+    <p>￥{{spendings | number_format }}</p>
+	
+    <h2>記帳</h2>
+	{% if accounting.success == true %}入出金に成功しました<br>{% endif %}
+	{% if accounting.error == true %}入出金の入力でエラーがあります<br>{% endif %}
+	<form action="./home.php" method="POST">
+		<input type="radio" name="type" value="income" {% if accounting.type == "income" %}checked{% endif %}>入金
+		<input type="radio" name="type" value="spending"{% if accounting.type == "spending" %}checked{% endif %}>出金<br>
+		日付<input name="date" type="date" value="{{accounting.date}}"><br>
+		科目<input name="subject" value="{{accounting.subject}}"><br>
+		金額<input name="amount" value="{{accounting.amount}}"><br>
+		タグ<div id="test">
+			{% for t in accounting.tags %}
+				<input type="text" name="tags[]" value="{{t}}"></input><br>
+			{% endfor %}
+			<input type="button" value="タグを追加" onclick="addColum()">
+			<script>
+				{% include('JavaScript/home.js') %}
+			</script>
+		</div>
+		<button>入力</button>
+	</form>
     
     <div class="calendar-container">
         {{ ym }}
-        <a href="home.php?ym={{prev}}">先月</a>
+        <a href="home.php?ym={{prev | e('url') }}">先月</a>
         <a href="home.php">当月</a>
-        <a href="home.php?ym={{next}}">次月</a>
+        <a href="home.php?ym={{next | e('url') }}">次月</a>
         
-        <table class="cal_php" style="table-layout: fixed; width: 750px;border-collapse: collapse" border="1">
+        <table class="cal_php" style="table-layout: fixed; width: 800px;border-collapse: collapse" border="1">
             <tr>
                 {% for w, v in aryWeek %}
                     <th>{{v}}</th>
                 {% endfor %}
             </tr>
-				<tr>
+			<tr>
 				{% for f in 0..first_week %}{# 月初めの位置合わせ #}
 					<td></td>
 				{% endfor %}
@@ -56,13 +76,15 @@
 				<tr>
 					{% endif %}				
 				<td>
-						<a href="day_result.php?ymd={{ym}}-{{d}}">{{ d }}</a>
+						<a href="day_result.php?ymd={{ym| e('url')}}-{{d| e('url')}}">{{ d }}</a>
 						{# contentsがあれば表示 #}
 						{% for con in contents %}
-							{% if(day_format == con['date']) %} 
-								<p>{{ con['subject'] }}</p>
-								<p>{{ con['income'] }}</p>
-								<p>{{ con['spending'] }}</p>
+							{% if(day_format == con.date) %}
+								{% if con.spending is null %} 
+									<p>入金：{{ con.subject }}￥{{ con.income | number_format  }}</p>
+								{% else %}
+									<p>出金：{{ con.subject }}￥{{ con.spending | number_format }}</p>
+								{% endif %}
 							{% endif %}
 						{% endfor %}
 					</td>

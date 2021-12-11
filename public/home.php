@@ -2,11 +2,16 @@
 declare(strict_types=1);
 //
 require_once(__DIR__ . '/../libs/init.php');
+require_once(__DIR__ . '/../libs/accountsCreate.php');
 
 // 
 $template_filename = 'home.twig';
 
 
+// 
+$session = $_SESSION['flash'] ?? [];
+unset($_SESSION['flash']); // flashデータなので速やかに削除
+//var_dump($session);
 //表示させる年月を設定　↓これは現在の月
 if (isset($_GET['ym'])) {
     $ym = $_GET['ym'];
@@ -29,30 +34,24 @@ $first_week = date('w', strtotime('-1 day',$timestamp));
 // 
 $aryWeek = ['日', '月', '火', '水', '木', '金', '土'];
 
-
 //select テスト用
 $user_id = 2;
 $date_f = date('Y-m-j', $timestamp);
 $date_l = date('Y-m-t', $timestamp);
 
 
-//当該月の regist を持ってくる
-$test = ModelBase::find($user_id, $date_f, $date_l);
-//print_r($test);
-$array = $test->array();
-//var_dump($array);
-/*
-foreach($ar as $k => $v){
-	var_dump($k,$v);
+// データ入力
+if (isset($_POST['type'])) {
+	accountsCreate();
 }
-*/
 
+//当該月の regist を持ってくる
+$test = Modelmine::select_month($user_id, $ym);
+
+$array = $test->array();
 
 // 収入と支出の合計を配列で返す('income'=> XX,'spending'=>XX)
-$sum = ModelBase::sums($test);
-
-
-
+$sum = ModelMine::sums($test);
 
 $context = [
 	'ym' => $ym,
@@ -65,7 +64,8 @@ $context = [
 	
 	'contents' => $array,
 	'incomes' => $sum['inc'],
-	'spendings' => $sum['spe']
+	'spendings' => $sum['spe'],
+	'accounting' => $session['accounting'] ?? [],
 ];
 //出力
 require_once(BASEPATH . '/libs/fin.php');

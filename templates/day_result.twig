@@ -6,19 +6,23 @@
 </head>
 <body>
     <h1>{{month}}月{{day}}日の収支</h1>
-    <h3>{{sums['inc'] - sums['spe']}}円</h3>
+    <h3>{{sums.inc - sums.spe}}円</h3>
     <div>
         <h2>内訳</h2>
 		{% for con in contents %}
 			<h3>
-			{% if con['income'] != NULL  %}
-				+ {{ con['income'] }} 円
+			{% if con.income != NULL  %}
+				+ {{ con.income }} 円
 			{% else %}
-				- {{ con['spending'] }} 円
+				- {{ con.spending }} 円
 			{% endif %}	
 			</h3>
-			<p>{{ con['subject'] }}</p>
-			<p>#タグ表示 #未実装</p>
+			<p>{{ con.subject }}</p>
+			<p>
+			{% for tag in con.tags %}
+				#{{tag}} 
+			{% endfor %}
+			</p>
 		{% endfor %}
     </div>
     <div>

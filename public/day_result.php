@@ -2,6 +2,7 @@
 declare(strict_types=1);
 //
 require_once(__DIR__ . '/../libs/init.php');
+require_once(__DIR__ . '/../libs/accountsCreate.php');
 
 // 
 $template_filename = 'day_result.twig';
@@ -19,36 +20,15 @@ $day = date('d', strtotime($date));
 // test用
 $user_id = 2;
 
-//DBアクセス
-/*
-//select テスト用
-$user_id = 1;
-// select
-$dbh = Db::getHandle();
-$r = $dbh->beginTransaction();
-//users へのinsert
-$sql = 'SELECT * FROM registers WHERE user_id = :user_id AND date = :date';
-$pre = $dbh->prepare($sql);
-// プレースホルダに値をバインド
-$pre->bindValue(':user_id', $user_id);
-$pre->bindValue(':date', $date);
-
-// sql を実行
-$r = $pre->execute();
-$datum = $pre->fetchALL();
-var_dump($datum);
-*/
-
-$test = ModelBase::day_registers($user_id, $date);
+$test = Modelmine::day_registers($user_id, $date);
 $array = $test->array();
+//var_dump($array);exit;
 /*
 foreach($array as $k => $v){
 	var_dump($k, $v);
 }
 */
-$sum = ModelBase::sums($test);
-
-
+$sum = Modelmine::sums($test);
 
 $context = [
 	'month' => $month,
