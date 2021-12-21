@@ -13,7 +13,7 @@ function accountsCreate(){
 	$date = strval($_POST['date'] ?? '');
 	$subject = strval($_POST['subject'] ?? '');
 	$amount = strval($_POST['amount'] ?? 0);
-	
+
 	//タグの取得
 	$tags = [];
 	foreach($_POST['tags'] as $v){
@@ -53,10 +53,9 @@ function accountsCreate(){
 		$_SESSION['flash']['accounting']['date'] = $date;
 		$_SESSION['flash']['accounting']['subject'] = $subject;
 		$_SESSION['flash']['accounting']['amount'] = $amount;
-		// 手直し必須
 		$_SESSION['flash']['accounting']['tags'] = $tags;
 		//
-		//var_dump($_SESSION['flash']['accounting']);exit;
+		var_dump($_SESSION['flash']['accounting']);
 		header('Location: ./home.php');
 		exit;
 	}
