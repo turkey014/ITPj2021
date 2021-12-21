@@ -3,59 +3,62 @@
 
 {% block body %}
 <header>
-    <a href="home.html">HOME</a>
-    <a href="asset.html">総資産</a>
-    <a href="income.html">総収入</a>
-    <a href="spending.html">総支出</a>
-    <a href="regist.html">記帳</a>
-    <a href="tag_edit.html">タグ編集</a>
-    <a href="setting.html">アカウント管理</a>
-    <a href="logout.html">ログアウト</a>
+    <a href="home.php">HOME</a>
+    <a href="asset.php">総資産</a>
+    <a href="income.php">総収入</a>
+    <a href="spending.php">総支出</a>
+    <a href="regist.php">記帳</a>
+    <a href="tag_edit.php">タグ編集</a>
+    <a href="setting.php">アカウント管理</a>
+    <a href="logout.php">ログアウト</a>
 </header>
 
 
 <h1>設定</h1>
 <h2>アカウント情報</h2>
-<p>登録メールアドレス：abcabc@example.com</p>
+<p>名前： {{ user_name }}</p>
+<p>メールアドレス： {{ email }}</p>
+<p>アカウント作成日時： {{ created_at }}</p>
 
 <h2>アカウント編集</h2>
-<form action="">
+<form action="./setting.php" method="POST">
     <div>
         <h3>メールアドレスの変更</h3>
         <label for="mail">新しいメールアドレス</label>
-        <input type="mail"> <br>
+        <input name="new_email" value="{{ new_email }}" type="email"> <br>
         <label for="pass">パスワード</label>
-        <input type="password"> <br>
+        <input name="password" value="{{ password }}" type="password"> <br>
         <button type="submit">変更</button>
     </div>
-
+</form>
+<form action="./setting.php" method="POST">
     <div>
         <h3>パスワードの変更</h3>
         <label for="pass">現在のパスワード</label>
-        <input type="text"> <br>
+        <input name="password" value="{{ password }}" type="password"> <br>
         <label for="pass">新しいパスワード</label>
-        <input type="text"> <br>
+        <input name="new_password" value="{{ new_password }}" type="password"> <br>
         <label for="pass">確認用パスワード</label>
-        <input type="text"> <br>
+        <input name="new_password2" value="{{ new_password }}" type="password"> <br>
         <button type="submit">変更</button>
     </div>
 </form>
 
 <h2>データリセット</h2>
 <p>総資産、タグに関するすべてのデータを削除します。</p>
-<form action="">
+<form action="./setting.php" method="POST">
     <label for="pass">パスワード</label>
-    <input type="text"> <br>
+    <input name="password" value="{{ password }}" type="password"> <br>
     <button type="submit">削除</button>
 </form>
 
 <h2>アカウント削除</h2>
 <p>登録されているメールアドレス、すべてのデータを削除します。</p>
-<form action="">
-    <label for="">パスワード</label>
-    <input type="text"> <br>
+<form action="./setting.php" method="POST">
+    <label for="pass">パスワード</label>
+    <input name="password" value="{{ password }}" type="password"> <br>
     <button type="submit">削除</button>
 </form>
 
-<a href="home.html">Home</a>
+<a href="home.php">Home</a>
 {% endblock %}

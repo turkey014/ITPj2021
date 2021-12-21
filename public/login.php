@@ -39,13 +39,13 @@ try{
         throw new \Exception('pass');
     }
 }catch(\Throwable $e){
-    
+
     echo "<pre>";
     //var_dump($session_token);
     //var_dump($form_token);
     //var_dump($_POST['csrf_token']);
-    var_dump($pw);
-    var_dump($users['password']);
+    //var_dump($pw);
+    //var_dump($users['password']);
     var_dump($e->getMessage()); exit;
     echo "</pre>";
     

@@ -106,6 +106,7 @@ $dbh->commit();
 
 
 // email送信
+// ここらへんでエラーはいてたら composer.phar require swiftmailer/swiftmailer してないかも
 // Create the Transport
 $transport = new Swift_SmtpTransport('localhost',25);
 // Create the Mailer using your created Transport
