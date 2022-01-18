@@ -23,8 +23,41 @@
     
     <h2>今月の収入</h2>
     <p>￥200,000</p>
-    <p>〇月×日</p>
-    <p>#給料　</p>
+    <hr>
+
+<form action="./income.php" method="get">
+	日付:<input type="date" name="from_date" value="{{ from_date }}">～<input type="date" name="to_date" value="{{ to_date }}"><br>
+	科目名:(部分一致)<input type="text" name="subject_search" value={{ subject_search }}><br>
+	<button>検索する</button>
+</form>
+<hr>
+<a href="./income.php?p=1">最初に戻る</a><br>
+
+{% if 0 != before_page %}<a href="./income.php?p={{ before_page | e('url') }}&{{ search_string_e }}&sort={{ sort|e('url') }}">前へ</a>{% endif %} 
+	{# e('url')はエスケープ #}
+{% if 0 != next_page %}<a href="./income.php?p={{ next_page | e('url') }}&{{ search_string_e }}&sort={{ sort|e('url') }}">次へ</a>{% endif %}<br>
+
+
+<table border="1">
+<tr>
+	<th>id
+	<th>日付
+	<th>科目
+	<th>金額
+	<th>タグ
+{% for key, val in data %}
+<tr>
+	<td>{{ val.regist_id }}
+	<td>{{ val.date }}
+	<td>{{ val.subject }}
+	<td>{{ val.income | number_format }}円
+	<td>
+	{% for k,v in val.tags %}
+		#{{v}}
+	{% endfor %}
+	</td>
+{% endfor %}
+</table>
     
     <h2>グラフ挿入予定</h2>
     <ul>
