@@ -54,17 +54,6 @@ try{
     #exit;
 }
 
-// パスワードの変更 UPDATE users SET password = new_password WHERE user_id = :user_id
-// 入力されたパスワードが正しいか確認する
-// 確認用パスワードと新パスワードが一致するか確認
-
-// データリセット DELETE
-// 入力されたパスワードが正しいか確認する
-
-// アカウント削除 DELETE
-// 入力されたパスワードが正しいか確認する
-
-
 $template_filename = 'setting.twig';
 $context = [
     'user_name' => $users['user_name'],

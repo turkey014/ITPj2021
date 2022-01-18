@@ -41,7 +41,7 @@ $date_l = date('Y-m-t', $timestamp);
 
 
 // データ入力
-if (isset($_POST['type'])) {
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
 	accountsCreate();
 }
 
@@ -52,12 +52,11 @@ $array = $test->array();
 
 // 収入と支出の合計を配列で返す('income'=> XX,'spending'=>XX)
 $sum = ModelMine::sums($test);
-
 $context = [
 	'ym' => $ym,
 	'prev' => $prev,
 	'next' => $next,
-	'today' => $today,
+	//'today' => $today,
     'end_month' => $end_month, 
     'first_week' => $first_week,
 	'aryWeek' => $aryWeek,

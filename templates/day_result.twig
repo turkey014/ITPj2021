@@ -6,23 +6,25 @@
 </head>
 <body>
     <h1>{{month}}月{{day}}日の収支</h1>
-    <h3>{{sums.inc - sums.spe}}円</h3>
+	<a href="">編集する</a>
+    <h3>{{ (sums.inc - sums.spe) | number_format }}円</h3>
     <div>
         <h2>内訳</h2>
+		<hr>
 		{% for con in contents %}
-			<h3>
+			<h3>{{ con.subject }}<spacer>
 			{% if con.income != NULL  %}
-				+ {{ con.income }} 円
-			{% else %}
-				- {{ con.spending }} 円
+				{{ con.income | number_format }} 円
+			{% elseif con.spending != NULL %}
+				-{{ con.spending | number_format }} 円
 			{% endif %}	
 			</h3>
-			<p>{{ con.subject }}</p>
 			<p>
 			{% for tag in con.tags %}
 				#{{tag}} 
 			{% endfor %}
 			</p>
+		<hr>
 		{% endfor %}
     </div>
     <div>

@@ -46,7 +46,7 @@
 
 <h2>データリセット</h2>
 <p>総資産、タグに関するすべてのデータを削除します。</p>
-<form action="./setting.php" method="POST">
+<form action="./data_reset.php" method="POST">
     <label for="pass">パスワード</label>
     <input name="password" value="{{ password }}" type="password"> <br>
     <button type="submit">削除</button>
@@ -54,7 +54,7 @@
 
 <h2>アカウント削除</h2>
 <p>登録されているメールアドレス、すべてのデータを削除します。</p>
-<form action="./setting.php" method="POST">
+<form action="./account_delete.php" method="POST">
     <label for="pass">パスワード</label>
     <input name="password" value="{{ password }}" type="password"> <br>
     <button type="submit">削除</button>
