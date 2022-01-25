@@ -3,15 +3,13 @@ declare(strict_types=1);
 //
 require_once(__DIR__ . '/../libs/init.php');
 require_once(__DIR__ . '/../libs/accountsCreate.php');
-
+require_once(__DIR__ . '/../Model/Modelmine.php');
 // 
 $template_filename = 'home.twig';
-
 
 // 
 $session = $_SESSION['flash'] ?? [];
 unset($_SESSION['flash']); // flashデータなので速やかに削除
-//var_dump($session);
 //表示させる年月を設定　↓これは現在の月
 if (isset($_GET['ym'])) {
     $ym = $_GET['ym'];
@@ -46,24 +44,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 
 //当該月の regist を持ってくる
-$test = Modelmine::select_month($user_id, $ym);
-
-$array = $test->array();
+$test = Modelmine::select_mon($ym);
 
 // 収入と支出の合計を配列で返す('income'=> XX,'spending'=>XX)
-$sum = ModelMine::sums($test);
+$sum = Modelmine::sums($test);
+
 $context = [
+	/* カレンダー用データ */
 	'ym' => $ym,
 	'prev' => $prev,
 	'next' => $next,
-	//'today' => $today,
     'end_month' => $end_month, 
     'first_week' => $first_week,
 	'aryWeek' => $aryWeek,
-	
-	'contents' => $array,
+	/* 取得データ */ 
+	//'contents' => $array,
+	'contents' => $test,
 	'incomes' => $sum['inc'],
 	'spendings' => $sum['spe'],
+	/* 引継ぎデータ */
 	'accounting' => $session['accounting'] ?? [],
 ];
 //出力

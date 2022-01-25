@@ -64,7 +64,6 @@ function accountsCreate(){
 	// データのINSERT
 
 	$data = [
-		//'user_id' => $_SESSION['users']['auth']['user_id'],
 		'user_id' => $user_id,
 		'date' => $date,
 		'subject' => $subject,

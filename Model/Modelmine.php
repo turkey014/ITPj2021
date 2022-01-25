@@ -2,196 +2,252 @@
 declare(strict_types=1);
 
 Class Modelmine{
-	
-	public static function select_month($key, $ym) : ?static {
+	/*
+	該当月のデータを配列で返す
+	@param $ym string 年月('YYYY-MM')
+	*/
+	public static function select_mon($ym){
+		/* selectの発行 */
+		// プリペアドステートメントの作成
+		$sql = 'SELECT * FROM registers 
+				WHERE user_id = :user_id 
+				AND date BETWEEN :date_f AND :date_l';
+		
+		/* 実際はセッションから代入 */
+		$user_id = 2;
+		
+		$date_f = $ym . '-01';
+		$date_l = date('Y-m-d', strtotime('last day of ' . $ym));
+		$bind = []; // 'プレースホルダ名' = 変数
+		$bind['user_id'] = $user_id;
+		$bind['date_f'] = $date_f;
+		$bind['date_l'] = $date_l;
+		
 		// DBハンドルの取得
-		$dbh = static::getDbHandle();
-		$day_f = $ym . '-01';
-		$day_l = date('Y-m-d', strtotime('last day of ' . $ym));
+		$pre = Db::getHandle()->prepare($sql);
+		static::bindValues($pre, $bind);
+		$r = $pre->execute();
+		//
+		$list = $pre->fetchAll(\PDO::FETCH_ASSOC);
+		return $list;
+	}
+	
+	/*
+	該当日のデータを配列で返す
+	@param $ymd string 年月日('YYYY-MM-DD')
+	*/
+	public static function select_day($ymd){
+		/* selectの発行 */
+		// プリペアドステートメントの作成
+		$sql = 'SELECT * FROM registers 
+			WHERE user_id = :user_id AND date = :day';
+		/* 実際はセッションから代入 */
+		$user_id = 2;
+		$bind = []; // 'プレースホルダ名' = 変数
+		$bind['user_id'] = $user_id;
+		$bind['day'] = $ymd;
+		
+		// DBハンドルの取得
+		$pre = Db::getHandle()->prepare($sql);
+		static::bindValues($pre, $bind);
+		$r = $pre->execute();
+		//
+		$list = $pre->fetchAll(\PDO::FETCH_ASSOC);
+		// keyに対応するデータがなければNULL return 
+		if(false === $list){
+			return null;
+		}
+		// 'tags'を追加
+		$lists = static::tagadd($list);
+		return $lists;
+	}
+	/*
+	@param $limit_num int 一ページ当たりの最大データ表示数
+	@param $p int 現在の表示ページ数
+	@param $sort string ソート条件
+	@param $amount_flg string 収支フラグ
+	*/
+	public static function select_f($limit_num, $p, $sort, $amount_flg){
+		/* SQLとクエリストリングを動的に作るための情報作成 */
+		$where = []; // where句の条件
+		$bind = []; // プレースホルダ名 => バインドする値
+		$search = []; //url に検索条件を引き継ぐ為
+		//収支の判定および条件
+		if($amount_flg === 'income'){
+			$where[] = 'income IS NOT NULL';
+		}elseif($amount_flg === 'spending'){
+			$where[] = 'spending IS NOT NULL';
+		}else{
+			// 
+			throw new \Exception('$amount_flagがおかしいです');
+		}
+		// sort条件のホワイトリスト
+		$sort_list = [
+			// 外部パラメタの値 => SQL の ORDER BYに渡す文字列,
+			'date' => 'date',
+			'date_desc' => 'date DESC',
+			'subject' => 'subject',
+			'subject_desc' => 'subject DESC',
+		];
+			
+		// この条件は確定
+		$where[] = 'user_id = :user_id';
+		$user_id = 2;
+		$bind['user_id'] = $user_id;
+		
+		$bind['limit_num'] = $limit_num + 1;
+		$bind['offset_num'] = $limit_num * ($p - 1);
+		
+		/* 検索用項目の取得 */
+		// 期間
+		$from_date = strval($_GET['from_date'] ?? '');
+		if('' !== $from_date){
+			$where[] = 'date >= :from_date';
+			$bind['from_date'] = $from_date;
+			$search[] = 'from_date=' . rawurlencode($from_date);
+		}
+		$to_date = strval($_GET['to_date'] ?? '');
+		if('' !== $to_date){
+			$where[] = 'date <= :to_date';
+			$bind['to_date'] = $to_date;
+			$search[] = 'to_date=' . rawurlencode($to_date);
+		}
+		
+		// 科目名(部分一致)
+		$subject_search = strval($_GET['subject_search'] ?? '');
+		if('' !== $subject_search){
+			// XXX
+			$where[] = 'subject LIKE :subject';
+			$bind['subject'] = "%{$subject_search}%";
+			$search[] = 'subject_search=' . rawurlencode($subject_search);
+		}
+		
+		// WHERE句の文字列を作成
+		$where_string = implode(' AND ', $where);
+		
+		// クエリストリングを作成
+		$search_string_e = '';
+		if([] !== $search){
+			$search_string_e = implode('&', $search);
+		}
+		// ソート条件デフォルトはdate, regist_id
+		$sort_string = $sort_list[$sort] ?? 'date DESC, regist_id';
 		
 		/* selectの発行 */
 		// プリペアドステートメントの作成
-		// $table_name = static::$table_name;
-		$primary_key = static::$primary_key;
-		$sql = "SELECT * FROM registers WHERE {$primary_key} = :user_id AND date BETWEEN :date_f AND :date_l";
-		//var_dump($sql);
-		$pre = $dbh->prepare($sql);
-		
+		$sql = 'SELECT * FROM registers
+				 WHERE  ' . $where_string . '
+				 ORDER BY ' . $sort_string . '
+				 LIMIT :limit_num OFFSET :offset_num;';
+			//var_dump($bind['amount_flg']);
+			
+		// DBハンドルの取得
+		$pre = Db::getHandle()->prepare($sql);
 		// プレースホルダにバインド
-		/* メソッドをうまく使えていない */
-		static::bindValues($pre, ['user_id' => $key, 'date_f' => $day_f, 'date_l' => $day_l]);
-		
+		static::bindValues($pre, $bind);
+		//
 		$r = $pre->execute();
-		$datum = $pre->fetchAll(PDO::FETCH_ASSOC); //PDO::FETCH_ASSOC(重複表示を省く);
+		//
+		$list = $pre->fetchAll(\PDO::FETCH_ASSOC);
 		
-		// keyに対応するデータがなければNULL return 
-		if(false === $datum){
-			return null;
-		}
+		// 'tags'を追加
+		$lists = static::tagadd($list);
 		
-		// 取り出せたデータを「どこか」に格納する
-		$obj = new static();
-		foreach($datum as $k => $v){
-			$obj->datum[$k] = $v;
+		return [
+			'list' => $lists,
+			'search_string_e' => $search_string_e,
+			// 以下、formからの入力パラメータ
+			'from_date' => $from_date,
+			'to_date' => $to_date,
+			'subject_search' => $subject_search,
+		];
+	}	
+	
+	/* registers から取得したデータにtagsのデータを付随する */
+	private static function tagadd(array $list){
+		/* selectの発行 */
+		// プリペアドステートメントの作成
+		$sql = "SELECT tag_name FROM tags WHERE regist_id = :regist_id;";
+		// DBハンドルの取得
+		$pre = Db::getHandle()->prepare($sql);
+		foreach($list as $k => $v){
+			// プレースホルダにバインド
+			static::bindValues($pre, ['regist_id' => $v['regist_id']]);
+			$r = $pre->execute();
+			$datum = $pre->fetchAll(PDO::FETCH_ASSOC); //PDO::FETCH_ASSOC(重複表示を省く);
+			// keyに対応するデータがなければNULL return 
+			if(false === $datum){
+				return null;
+			}
+			$tag = array_column($datum, "tag_name");
+			$v['tags'] = $tag;
+			$list[$k] = $v;
 		}
-		return $obj;
+		return $list;
 	}
 	
-	public static function create(array $datum) : ?static{
-		
-		// DBハンドルの取得
-		$dbh = static::getDbHandle();
+	/* 
+	データ入力 
+	@param $datum array ['カラム名' => 'パラメータ']
+	*/
+	public static function create(array $datum){
 		//key(カラム群)の把握
 		$keys = array_keys($datum);
 		// カラム名のセキュリティチェック
 		static::checkColumn($keys);
-		//var_dump($keys);
+		// カラム名の``でエスケープ
 		$keys_string = implode(', ', array_map(function($k) {
 			return "`{$k}`";
-		}, $keys));// XXX カラム名の``でエスケープ
-		//
+		}, $keys));
+		
+		//プレースホルダを作成
 		$holder_keys = array_map(function($k){
 			return ":{$k}";
 		}, $keys);
 		
 		$holder_keys_string = implode(', ', $holder_keys);
+		// (':key1',':key2',':key3')みたいな感じ
 		
 		// insertの発行 
 		// プリペアドステートメントの作成
-		//$table_name = static::$table_name;
-		$primary_key = static::$primary_key;
+		// 入力するデータによらない作り(今回はいらない気もする)(もしくはtagテーブルとの共通化)
 		$sql = "INSERT INTO registers ({$keys_string}) VALUES({$holder_keys_string});";
-		
-		//var_dump($keys_string,$holder_keys_string);exit;
-
-		$pre = $dbh->prepare($sql);
-		
-		// プレースホルダにバインド
+		$pre = Db::getHandle()->prepare($sql);
 		static::bindValues($pre, $datum);
+		
 		$r = $pre->execute();
-		//var_dump($r);exit;
-		
-		/* tags tableに追加 */
-		//直前のregist_idを取得
-		//$regist_id = $dbh->lastInsertId();
-		
-		//static::tag_add($regist_id);
-		// 入れたデータを格納
-		$obj = new static();
-		foreach($datum as $k => $v){
-			$obj->datum[$k] = $v;
-		}
-		// もし「SERIAL(auto_increment)」ならIDを取得して格納する
-		if(true === static::$auto_increment){
-			$primary_key = static::$primary_key;
-			$obj->datum[$primary_key] = $dbh->lastInsertId(); 
-		}
-		return $obj;
-		
+		//var_dump($r);
+		//return $r;
 	}
 	
-	// tags に　insert する
+	/* 
+	tags に　insert する
+	@param $id int user_id
+	@param $tags array 登録タグを配列でn個 
+	*/ 
 	public static function tag_create(int $id, array $tags){
-		
 		// DBハンドルの取得
-		$dbh = static::getDbHandle();
-		
+		$dbh = Db::getHandle();
 		// insertの発行 
 		// プリペアドステートメントの作成
-		//直前のregist_idを取得
-		$regist_id = $dbh->lastInsertId();
-		$sql = "INSERT INTO tags (`regist_id`,`tag_name`,`user_id`) VALUES(:regist_id, :tag, :user_id);";
-		//var_dump($sql);
+		$sql = "INSERT INTO tags (`regist_id`,`tag_name`,`user_id`) VALUES(:regist_id, :tag_name, :user_id);";
+		// DBハンドルの取得
 		$pre = $dbh->prepare($sql);
 		
-		$pre->bindValue(":regist_id", $regist_id, \PDO::PARAM_INT);
-		$pre->bindValue(":user_id", $id, \PDO::PARAM_INT);
+		$bind = []; // 'プレースホルダ名' = 変数
+		//直前のregist_idを取得
+		$bind['regist_id'] = $dbh->lastInsertId();;
+		$bind['user_id'] = $user_id;
+		static::bindValues($pre, $bind);
 		
 		foreach($tags as $v){
-			var_dump($v);
 			// プレースホルダにバインド
-			$pre->bindValue(":tag", $v, \PDO::PARAM_STR);
+			static::bindValues($pre, ['tag_name' => $v]);
 			$pre->execute();
 		}
-		//var_dump($r);exit;
-		
-	}
-	// day_registers
-	public static function day_registers($key, $date){
-		// DBハンドルの取得
-		$dbh = static::getDbHandle();
-		 
-		/* selectの発行 */
-		// プリペアドステートメントの作成
-		// $table_name = static::$table_name;
-		$primary_key = static::$primary_key;
-		$sql = "SELECT * FROM registers WHERE {$primary_key} = :user_id AND date= :date;";
-		//var_dump($sql);
-		$pre = $dbh->prepare($sql);
-		
-		// プレースホルダにバインド
-		static::bindValues($pre, ['user_id' => $key]);
-		static::bindValues($pre, ['date' => $date]);
-		$r = $pre->execute();
-		$datum = $pre->fetchAll(PDO::FETCH_ASSOC); //PDO::FETCH_ASSOC(重複表示を省く);
-		//$datum = $pre->fetch(PDO::FETCH_ASSOC); //
-		//var_dump($datum);
-		// keyに対応するデータがなければNULL return 
-		if(false === $datum){
-			return null;
-		}
-		
-		// 取り出せたデータを「どこか」に格納する
-		$obj = new static();
-		//var_dump($datum);
-		foreach($datum as $k => $v){
-			// 取得したregister_id でtagテーブルのデータを追加する
-			$tags = static::get_tag($v["regist_id"]);
-			$v['tags'] = $tags;
-			
-			$obj->datum[$k] = $v;
-		}
-		return $obj;
-	}
-	private static function get_tag(int $regist_id){
-		// DBハンドルの取得
-		$dbh = static::getDbHandle();
-		 
-		/* selectの発行 */
-		// プリペアドステートメントの作成
-		$sql = "SELECT tag_name FROM tags WHERE regist_id = :regist_id;";
-		$pre = $dbh->prepare($sql);
-		
-		// プレースホルダにバインド
-		static::bindValues($pre, ['regist_id' => $regist_id]);
-		$r = $pre->execute();
-		$datum = $pre->fetchAll(PDO::FETCH_ASSOC); //PDO::FETCH_ASSOC(重複表示を省く);
-		//$datum = $pre->fetch(PDO::FETCH_ASSOC); //
-		//var_dump($datum);
-		// keyに対応するデータがなければNULL return 
-		if(false === $datum){
-			return null;
-		}
-		$test = array_column($datum, "tag_name");
-		return $test;
 	}
 	
-	public function __get(string $name){
-		//
-		if(false === array_key_exists($name, $this->datum)){
-			throw new \Exception("{$name}はありません");
-		}
-		return $this->datum[$name];
-	}
-	public function __set(string $name, $value){
-		// カラム名チェックをやる
-		$this::checkColumn([$name]);
-		// カラム名が問題なければデータを入れる
-		$this->datum[$name] = $value;
-	}
-	
-	
-	
+	/* $data['プレースホルダ名' => 変数] をバインドする */
 	protected static function bindValues($pre, $data){
 		foreach($data as $k => $v){
 			if((true === is_int($v))||(true === is_float($v))){
@@ -203,11 +259,40 @@ Class Modelmine{
 		}
 	}
 	
-	// DBハンドルの取得
-	protected static function getDbHandle(){
-		return Db::getHandle();
+	/* 
+	与えられたデータの収支別の合計を返す
+	@param $arr array 
+	*/
+	public static function sums($arr){
+		$sums = ["inc" => 0, "spe" => 0];
+		foreach($arr as $d){
+			//var_dump($n);
+			$sums["inc"] += $d["income"];
+			$sums["spe"] += $d["spending"];
+		}
+		//var_dump($sums);
+		return $sums;
+	}
+	// アクセス不能なプロパティからデータを読み込もうとしたとき..?
+	public function __get(string $name){
+		//
+		if(false === array_key_exists($name, $this->datum)){
+			throw new \Exception("{$name}はありません");
+		}
+		return $this->datum[$name];
+	}
+	// アクセス不能なプロパティにデータを格納しようとしたとき..?
+	public function __set(string $name, $value){
+		// カラム名チェックをやる
+		$this::checkColumn([$name]);
+		// カラム名が問題なければデータを入れる
+		$this->datum[$name] = $value;
 	}
 	
+	/*
+	カラムチェック(英数またはアンダースコア以外の文字を使っていたらはじく)
+	@param $keys array 
+	*/
 	protected static function checkColumn(array $keys){
 		//
 		foreach($keys as $k){
@@ -225,33 +310,6 @@ Class Modelmine{
 				throw new \Exception("カラム名{$k}でダメっぽいの({$k[$i]})があったから処理やめる");
 			}
 		}
-	}
-	
-	//
-	protected static $auto_increment = false;
-	protected $datum = [];
-	
-	// register テーブル用
-	// protected static $table_name = 'registers';
-	protected static $primary_key = 'user_id';
-	
-	// sums関数(自作)
-	public static function sums($arr){
-		$sums = ["inc" => 0, "spe" => 0];
-		//var_dump($arr);
-		foreach($arr->datum as $n){
-			//var_dump($n);
-			$sums["inc"] += $n["income"];
-			$sums["spe"] += $n["spending"];
-		}
-		//var_dump($sums);
-		return $sums;
-	}
-	
-	public function array(){  // オブジェクトじゃないと返せないfindを配列に直す
-		//var_dump($this->datum);
-		$ar = (array)$this->datum;
-		return $ar;
 	}
 	
 }
