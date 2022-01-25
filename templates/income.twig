@@ -18,11 +18,11 @@
     </header>
 
    
-    <h1>総収入</h1>
-    <p>￥1,200,000</p>
+    <h2><a href="asset.php">総資産</a></h2>
+    <p>{{ (sums_all.inc - sums_all.spe) | number_format }}円</p>
     
-    <h2>今月の収入</h2>
-    <p>￥200,000</p>
+    <h2>{% if 'income' == flag %}収入{% elseif 'spending' == flag %}支出{% endif %}</h2>
+    <!--<p>￥200,000</p>-->
     <hr>
 
 <form action="./income.php" method="get">

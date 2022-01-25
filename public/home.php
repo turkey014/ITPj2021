@@ -46,9 +46,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 //当該月の regist を持ってくる
 $test = Modelmine::select_mon($ym);
 
-// 収入と支出の合計を配列で返す('income'=> XX,'spending'=>XX)
-$sum = Modelmine::sums($test);
 
+$all = Modelmine::select_all();
+// 収入と支出の合計を配列で返す('income'=> XX,'spending'=>XX)
+
+$sum = Modelmine::sums($test);
+$sums_all = Modelmine::sums($all);
+//var_dump($sums_all);
 $context = [
 	/* カレンダー用データ */
 	'ym' => $ym,
@@ -57,8 +61,9 @@ $context = [
     'end_month' => $end_month, 
     'first_week' => $first_week,
 	'aryWeek' => $aryWeek,
+	/* 総資産 */
+	'sums_all' => $sums_all,
 	/* 取得データ */ 
-	//'contents' => $array,
 	'contents' => $test,
 	'incomes' => $sum['inc'],
 	'spendings' => $sum['spe'],

@@ -10,30 +10,32 @@ $template_filename = 'income.twig';
 /* 設定 */
 $limit_num = 10; //1ページ当たりの表示数
 
-
 // 情報があったら受け取る
 $session = $_SESSION['flash'] ?? [];
 unset($_SESSION['flash']); // flashデータなので速やかに削除
-
 
 // ページ数の取得とざっくりしたfilter
 $p = intval($_GET['p'] ?? 1);
 if(1 > $p){
 	$p = 1;
 }
-
 $sort = strval($_GET['sort'] ?? '');
+
 //収入データの取得
 //当該月の regist を持ってくる
-$amount_flg = 'income';
+$flag = 'income';
 $key = 2; // user_id;
-$data = Modelmine::select_f($limit_num, $p, $sort, $amount_flg);
+$data = Modelmine::select_f($limit_num, $p, $sort, $flag);
 $list = $data['list'];
 $search_string_e = $data['search_string_e'];
 $from_date = $data['from_date'];
 $to_date = $data['to_date'];
 $subject_search = $data['subject_search'];
 
+
+// 総額
+$all = Modelmine::select_all();
+$sums_all = Modelmine::sums($all);
 
 // 「前」「次」の有無の確認
 $before_page = $p - 1; // 前がないなら0になるから後はテンプレート側で判定
@@ -46,6 +48,7 @@ if(count($list) >= $limit_num + 1){ //sqlで一つ多く取って、それより
 }
 /**/
 $context = [
+	'flag' => $flag,
 	'data' => $list,
 	// ページング用の情報
 	'now_page' => $p,
@@ -58,6 +61,8 @@ $context = [
 	'subject_search' => $subject_search,
 	// sort用情報
 	'sort' => $sort,
+	/* 総資産 */
+	'sums_all' => $sums_all,
 	// CSRF用
 	//'csrf_token' => $csrf_token,
 	

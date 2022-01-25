@@ -161,7 +161,26 @@ Class Modelmine{
 			'to_date' => $to_date,
 			'subject_search' => $subject_search,
 		];
-	}	
+	}
+	// 全収入支出取得
+	public static function select_all(){
+		/* selectの発行 */
+		// プリペアドステートメントの作成
+		$sql = 'SELECT `income`, `spending` FROM registers 
+				WHERE user_id = :user_id';
+		
+		/* 実際はセッションから代入 */
+		$user_id = 2;
+		$bind = []; // 'プレースホルダ名' = 変数
+		$bind['user_id'] = $user_id;
+		// DBハンドルの取得
+		$pre = Db::getHandle()->prepare($sql);
+		static::bindValues($pre, $bind);
+		$r = $pre->execute();
+		//
+		$list = $pre->fetchAll(\PDO::FETCH_ASSOC);
+		return $list;
+	}
 	
 	/* registers から取得したデータにtagsのデータを付随する */
 	private static function tagadd(array $list){
@@ -236,7 +255,7 @@ Class Modelmine{
 		
 		$bind = []; // 'プレースホルダ名' = 変数
 		//直前のregist_idを取得
-		$bind['regist_id'] = $dbh->lastInsertId();;
+		$bind['regist_id'] = $dbh->lastInsertId();
 		$bind['user_id'] = $user_id;
 		static::bindValues($pre, $bind);
 		
