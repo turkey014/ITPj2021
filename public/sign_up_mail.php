@@ -104,7 +104,7 @@ $r = $pre->execute();
 // COMMIT
 $dbh->commit();
 
-
+/*
 // email送信
 // Create the Transport
 $transport = new Swift_SmtpTransport('localhost',25);
@@ -122,6 +122,7 @@ $message = (new Swift_Message('ユーザー登録用アクティべーション�
     ;
 
 var_dump($message); 
+*/
 // XXX 今はメールを送らないので、確認用に↓↓↓のコード
 $_SESSION['activation_token'] = $activation_token; // XXX 今はemailで送らないのでデバッグ用です。
 

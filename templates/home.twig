@@ -18,7 +18,7 @@
     </header>
     
     <h2><a href="asset.php">総資産</a></h2>
-    <p>{{ (sums_all.inc - sums_all.spe) | number_format }}円</p>
+    <p>￥{{ (sums_all.inc - sums_all.spe) | number_format }}</p>
     <h2><a href="income.php">今月の収入</a></h2>
     <p>￥{{incomes | number_format }}</p>
     <h2><a href="spending.php">今月の支出</a></h2>
