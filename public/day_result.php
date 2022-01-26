@@ -1,8 +1,7 @@
 <?php
 declare(strict_types=1);
 //
-require_once(__DIR__ . '/../libs/init.php');
-require_once(__DIR__ . '/../libs/accountsCreate.php');
+require_once(__DIR__ . '/../libs/init_auth.php');
 
 // 
 $template_filename = 'day_result.twig';

@@ -13,8 +13,8 @@ Class Modelmine{
 				WHERE user_id = :user_id 
 				AND date BETWEEN :date_f AND :date_l';
 		
-		/* 実際はセッションから代入 */
-		$user_id = 2;
+		//セッションから代入
+		$user_id = $_SESSION['users']['auth']['user_id'];
 		
 		$date_f = $ym . '-01';
 		$date_l = date('Y-m-d', strtotime('last day of ' . $ym));
@@ -41,8 +41,8 @@ Class Modelmine{
 		// プリペアドステートメントの作成
 		$sql = 'SELECT * FROM registers 
 			WHERE user_id = :user_id AND date = :day';
-		/* 実際はセッションから代入 */
-		$user_id = 2;
+		//セッションから代入
+		$user_id = $_SESSION['users']['auth']['user_id'];
 		$bind = []; // 'プレースホルダ名' = 変数
 		$bind['user_id'] = $user_id;
 		$bind['day'] = $ymd;
@@ -57,7 +57,7 @@ Class Modelmine{
 		if(false === $list){
 			return null;
 		}
-		// 'tags'を追加
+		// 'tags'を追加(タグは複数)
 		$lists = static::tagadd($list);
 		return $lists;
 	}
@@ -92,7 +92,8 @@ Class Modelmine{
 			
 		// この条件は確定
 		$where[] = 'user_id = :user_id';
-		$user_id = 2;
+		//セッションから代入
+		$user_id = $_SESSION['users']['auth']['user_id'];
 		$bind['user_id'] = $user_id;
 		
 		$bind['limit_num'] = $limit_num + 1;
@@ -150,7 +151,7 @@ Class Modelmine{
 		//
 		$list = $pre->fetchAll(\PDO::FETCH_ASSOC);
 		
-		// 'tags'を追加
+		// 'tags'を追加(タグは複数)
 		$lists = static::tagadd($list);
 		
 		return [
@@ -169,8 +170,8 @@ Class Modelmine{
 		$sql = 'SELECT `income`, `spending` FROM registers 
 				WHERE user_id = :user_id';
 		
-		/* 実際はセッションから代入 */
-		$user_id = 2;
+		//セッションから代入
+		$user_id = $_SESSION['users']['auth']['user_id'];
 		$bind = []; // 'プレースホルダ名' = 変数
 		$bind['user_id'] = $user_id;
 		// DBハンドルの取得
@@ -182,7 +183,7 @@ Class Modelmine{
 		return $list;
 	}
 	
-	/* registers から取得したデータにtagsのデータを付随する */
+	/* registers から取得したデータにtagsのデータを付随する(タグは複数個) */
 	private static function tagadd(array $list){
 		/* selectの発行 */
 		// プリペアドステートメントの作成

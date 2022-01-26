@@ -6,9 +6,8 @@ require_once(BASEPATH . '/Model/Modelmine.php');
  */
 
 function accountsCreate(){
-	//var_dump($_POST);exit;
-	// $user_id = $_SESSION['users']['auth']['user_id'];
-	$user_id = 2;
+	//セッションから代入
+	$user_id = $_SESSION['users']['auth']['user_id'];
 	$type = strval($_POST['type'] ?? '');
 	$date = strval($_POST['date'] ?? '');
 	$subject = strval($_POST['subject'] ?? '');
@@ -21,7 +20,6 @@ function accountsCreate(){
 			$tags[] = strval($v);
 		}
 	}
-	//var_dump($tags);exit;
 
 	// validate
 	$error = [];
@@ -70,9 +68,7 @@ function accountsCreate(){
 		$type => $amount,
 		'created_at' => date('Y-m-d H:i:s'),
 	];
-	//var_dump($data);exit;
 	$r = Modelmine::create($data);
-	//var_dump($r);exit;
 	if('' !== $tags){
 		// タグの追加
 		Modelmine::tag_create($user_id, $tags);

@@ -1,9 +1,8 @@
 <?php
 declare(strict_types=1);
 //
-require_once(__DIR__ . '/../libs/init.php');
-require_once(__DIR__ . '/../libs/accountsCreate.php');
-require_once(__DIR__ . '/../Model/Modelmine.php');
+require_once(__DIR__ . '/../libs/init_auth.php');
+
 // 
 $template_filename = 'home.twig';
 
@@ -31,11 +30,6 @@ $end_month = date('t', $timestamp);
 $first_week = date('w', strtotime('-1 day',$timestamp));
 // 
 $aryWeek = ['日', '月', '火', '水', '木', '金', '土'];
-
-//select テスト用
-$user_id = 2;
-$date_f = date('Y-m-j', $timestamp);
-$date_l = date('Y-m-t', $timestamp);
 
 
 // データ入力
