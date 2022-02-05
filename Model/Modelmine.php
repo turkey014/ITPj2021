@@ -54,7 +54,7 @@ Class Modelmine{
 		//
 		$list = $pre->fetchAll(\PDO::FETCH_ASSOC);
 		// keyに対応するデータがなければNULL return 
-		if(false === $list){
+		if([] === $list){
 			return null;
 		}
 		// 'tags'を追加(タグは複数)
@@ -67,20 +67,12 @@ Class Modelmine{
 	@param $sort string ソート条件
 	@param $amount_flg string 収支フラグ
 	*/
-	public static function select_f($limit_num, $p, $sort, $amount_flg){
+	public static function select_f($limit_num, $p , $amount_flg){
 		/* SQLとクエリストリングを動的に作るための情報作成 */
 		$where = []; // where句の条件
 		$bind = []; // プレースホルダ名 => バインドする値
 		$search = []; //url に検索条件を引き継ぐ為
-		//収支の判定および条件
-		if($amount_flg === 'income'){
-			$where[] = 'income IS NOT NULL';
-		}elseif($amount_flg === 'spending'){
-			$where[] = 'spending IS NOT NULL';
-		}else{
-			// 
-			throw new \Exception('$amount_flagがおかしいです');
-		}
+		$join = ''; // タグ検索の有無
 		// sort条件のホワイトリスト
 		$sort_list = [
 			// 外部パラメタの値 => SQL の ORDER BYに渡す文字列,
@@ -89,59 +81,112 @@ Class Modelmine{
 			'subject' => 'subject',
 			'subject_desc' => 'subject DESC',
 		];
-			
-		// この条件は確定
-		$where[] = 'user_id = :user_id';
 		//セッションから代入
 		$user_id = $_SESSION['users']['auth']['user_id'];
-		$bind['user_id'] = $user_id;
-		
-		$bind['limit_num'] = $limit_num + 1;
-		$bind['offset_num'] = $limit_num * ($p - 1);
-		
 		/* 検索用項目の取得 */
-		// 期間
 		$from_date = strval($_GET['from_date'] ?? '');
+		$to_date = strval($_GET['to_date'] ?? '');
+		$subject_search = strval($_GET['subject_search'] ?? '');
+		$sort_search = strval($_GET['sort'] ?? '');
 		if('' !== $from_date){
-			$where[] = 'date >= :from_date';
 			$bind['from_date'] = $from_date;
 			$search[] = 'from_date=' . rawurlencode($from_date);
 		}
-		$to_date = strval($_GET['to_date'] ?? '');
 		if('' !== $to_date){
-			$where[] = 'date <= :to_date';
 			$bind['to_date'] = $to_date;
 			$search[] = 'to_date=' . rawurlencode($to_date);
 		}
-		
 		// 科目名(部分一致)
-		$subject_search = strval($_GET['subject_search'] ?? '');
 		if('' !== $subject_search){
-			// XXX
-			$where[] = 'subject LIKE :subject';
 			$bind['subject'] = "%{$subject_search}%";
 			$search[] = 'subject_search=' . rawurlencode($subject_search);
 		}
-		
-		// WHERE句の文字列を作成
-		$where_string = implode(' AND ', $where);
-		
 		// クエリストリングを作成
 		$search_string_e = '';
 		if([] !== $search){
 			$search_string_e = implode('&', $search);
 		}
 		// ソート条件デフォルトはdate, regist_id
-		$sort_string = $sort_list[$sort] ?? 'date DESC, regist_id';
+		$sort = strval($_GET['sort'] ?? '');
+		$tagfind = strval($_GET['tag_search'] ?? '');
+		if($tagfind !== ''){ // タグ検索があった場合　テーブル結合
+			
+			$join = 'LEFT OUTER JOIN tags ON registers.regist_id = tags.regist_id';
+			//収支の判定および条件
+			if($amount_flg === 'income'){
+				$where[] = 'registers.income IS NOT NULL';
+			}elseif($amount_flg === 'spending'){
+				$where[] = 'registers.spending IS NOT NULL';
+			}else{
+				// 
+				throw new \Exception('$amount_flagがおかしいです');
+			}
+			// この条件は確定
+			$where[] = 'registers.user_id = :user_id';
+			if('' !== $from_date){
+				$where[] = 'registers.date >= :from_date';
+			}
+			if('' !== $to_date){
+				$where[] = 'registers.date <= :to_date';
+			}
+			
+			// 科目名(部分一致)
+			if('' !== $subject_search){
+				// XXX
+				$where[] = 'registers.subject LIKE :subject';
+			}
+			if('' !== $sort_search){
+				$sort_string = 'registers.' . $sort_list[$sort];
+			}else{
+				$sort_string = 'registers.date DESC, registers.regist_id';
+			}
+			$where[] = 'tags.tag_name LIKE :tag_name';
+			$bind['tag_name'] = "%{$tagfind}%";
+			$search[] = 'tag_search=' . rawurlencode($tagfind);
+		}
+		else{
+			//収支の判定および条件
+			if($amount_flg === 'income'){
+				$where[] = 'income IS NOT NULL';
+			}elseif($amount_flg === 'spending'){
+				$where[] = 'spending IS NOT NULL';
+			}else{
+				// 
+				throw new \Exception('$amount_flagがおかしいです');
+			}
+				
+			// この条件は確定
+			$where[] = 'user_id = :user_id';
+			
+			// 期間
+			if('' !== $from_date){
+				$where[] = 'date >= :from_date';
+			}
+			if('' !== $to_date){
+				$where[] = 'date <= :to_date';
+			}
+			// 科目名(部分一致)
+			if('' !== $subject_search){
+				$where[] = 'subject LIKE :subject';
+			}
+			if('' !== $sort_search){
+				$sort_string = $sort_list[$sort];
+			}else{
+				$sort_string = 'date DESC, regist_id';
+			}
+		}
 		
+		$bind['user_id'] = $user_id;
+		$bind['limit_num'] = $limit_num + 1;
+		$bind['offset_num'] = $limit_num * ($p - 1);
+		// WHERE句の文字列を作成
+		$where_string = implode(' AND ', $where);
 		/* selectの発行 */
 		// プリペアドステートメントの作成
-		$sql = 'SELECT * FROM registers
-				 WHERE  ' . $where_string . '
-				 ORDER BY ' . $sort_string . '
-				 LIMIT :limit_num OFFSET :offset_num;';
-			//var_dump($bind['amount_flg']);
-			
+		$sql = 'SELECT * FROM registers ' . $join . '
+			 WHERE  ' . $where_string . '
+			 ORDER BY ' . $sort_string . '
+			 LIMIT :limit_num OFFSET :offset_num;';
 		// DBハンドルの取得
 		$pre = Db::getHandle()->prepare($sql);
 		// プレースホルダにバインド
@@ -150,10 +195,8 @@ Class Modelmine{
 		$r = $pre->execute();
 		//
 		$list = $pre->fetchAll(\PDO::FETCH_ASSOC);
-		
 		// 'tags'を追加(タグは複数)
 		$lists = static::tagadd($list);
-		
 		return [
 			'list' => $lists,
 			'search_string_e' => $search_string_e,
@@ -161,6 +204,8 @@ Class Modelmine{
 			'from_date' => $from_date,
 			'to_date' => $to_date,
 			'subject_search' => $subject_search,
+			'sort' => $sort, 
+			'tag_search' => $tagfind, 
 		];
 	}
 	// 全収入支出取得

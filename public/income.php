@@ -18,20 +18,22 @@ $p = intval($_GET['p'] ?? 1);
 if(1 > $p){
 	$p = 1;
 }
-$sort = strval($_GET['sort'] ?? '');
+
+
 
 //収入データの取得
 //当該月の regist を持ってくる
 $flag = 'income';
-$key = 2; // user_id;
-$data = Modelmine::select_f($limit_num, $p, $sort, $flag);
+$data = Modelmine::select_f($limit_num, $p, $flag);
+
+
 $list = $data['list'];
 $search_string_e = $data['search_string_e'];
 $from_date = $data['from_date'];
 $to_date = $data['to_date'];
 $subject_search = $data['subject_search'];
-
-
+$sort = $data['sort'];
+$tag_search = $data['tag_search'];
 // 総額
 $all = Modelmine::select_all();
 $sums_all = Modelmine::sums($all);
@@ -58,6 +60,7 @@ $context = [
 	'from_date' => $from_date,
 	'to_date' => $to_date,
 	'subject_search' => $subject_search,
+	'tag_search' => $tag_search,
 	// sort用情報
 	'sort' => $sort,
 	/* 総資産 */

@@ -18,8 +18,8 @@
     </header>
 
    
-    <h2><a href="asset.php">総資産</a></h2>
-    <p>{{ (sums_all.inc - sums_all.spe) | number_format }}円</p>
+    <!--<h2><a href="asset.php">総資産</a></h2>
+    <p>{{ (sums_all.inc - sums_all.spe) | number_format }}円</p>-->
     
     <h2>{% if 'income' == flag %}収入{% elseif 'spending' == flag %}支出{% endif %}</h2>
     <!--<p>￥200,000</p>-->
@@ -28,6 +28,7 @@
 <form action="./income.php" method="get">
 	日付:<input type="date" name="from_date" value="{{ from_date }}">～<input type="date" name="to_date" value="{{ to_date }}"><br>
 	科目名:(部分一致)<input type="text" name="subject_search" value={{ subject_search }}><br>
+	タグ名:(部分一致)<input type="text" name="tag_search" value={{ tag_search }}><br>
 	<button>検索する</button>
 </form>
 <hr>
@@ -41,9 +42,12 @@
 <table border="1">
 <tr>
 	<th>id
-	<th>日付
-	<th>科目
-	<th>金額
+	<th>日付<a href="./income.php?p={{ now_page|e('url') }}&{{ search_string_e}}&sort=date">▲</a> 
+			<a href="./income.php?p={{ now_page|e('url') }}&{{ search_string_e}}&sort=date_desc">▼</a>
+	<th>科目<a href="./income.php?p={{ now_page|e('url') }}&{{ search_string_e}}&sort=subject">▲</a> 
+			<a href="./income.php?p={{ now_page|e('url') }}&{{ search_string_e}}&sort=subject_desc">▼</a>
+	<th>金額<a href="./income.php?p={{ now_page|e('url') }}&{{ search_string_e}}&sort=amount">▲</a> 
+			<a href="./income.php?p={{ now_page|e('url') }}&{{ search_string_e}}&sort=amount_desc">▼</a>
 	<th>タグ
 {% for key, val in data %}
 <tr>
