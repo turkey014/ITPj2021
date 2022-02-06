@@ -150,7 +150,7 @@ Class Modelmine{
 				$where[] = 'income IS NOT NULL';
 			}elseif($amount_flg === 'spending'){
 				$where[] = 'spending IS NOT NULL';
-			}else{
+			}elseif($amount_flg !== 'all'){
 				// 
 				throw new \Exception('$amount_flagがおかしいです');
 			}

@@ -2,10 +2,10 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>総資産</title>
+    <title>総収入</title>
 </head>
 <body>
-   
+    
     <header>
         <a href="home.php">HOME</a>
         <a href="asset.php">総資産</a>
@@ -16,22 +16,67 @@
         <a href="setting.php">アカウント管理</a>
         <a href="logout.php">ログアウト</a>
     </header>
+
    
-    <h1>総資産</h1>
-    <p>￥1,000,000</p>
-    <h2>総収入</h2>
-    <p>￥1,200,000</p>
-    <h2>総支出</h2>
-    <p>￥200,000</p>
+ 
+    <h2>{% if 'income' == flag %}収入{% elseif 'spending' == flag %}支出{% endif %}</h2>
+    <hr>
+
+<form action="./asset.php" method="get">
+	日付:<input type="date" name="from_date" value="{{ from_date }}">～<input type="date" name="to_date" value="{{ to_date }}"><br>
+	科目名:(部分一致)<input type="text" name="subject_search" value={{ subject_search }}><br>
+	タグ名:(部分一致)<input type="text" name="tag_search" value={{ tag_search }}><br>
+	<button>検索する</button>
+</form>
+<hr>
+<a href="./asset.php?p=1">最初に戻る</a><br>
+
+{% if 0 != before_page %}<a href="./asset.php?p={{ before_page | e('url') }}&{{ search_string_e }}&sort={{ sort|e('url') }}">前へ</a>{% endif %} 
+	{# e('url')はエスケープ #}
+{% if 0 != next_page %}<a href="./asset.php?p={{ next_page | e('url') }}&{{ search_string_e }}&sort={{ sort|e('url') }}">次へ</a>{% endif %}<br>
+
+
+<table border="1">
+<tr>
+	<th>id
+	<th>日付<a href="./asset.php?p={{ now_page|e('url') }}&{{ search_string_e}}&sort=date">▲</a> 
+			<a href="./asset.php?p={{ now_page|e('url') }}&{{ search_string_e}}&sort=date_desc">▼</a>
+	<th>科目<a href="./asset.php?p={{ now_page|e('url') }}&{{ search_string_e}}&sort=subject">▲</a> 
+			<a href="./asset.php?p={{ now_page|e('url') }}&{{ search_string_e}}&sort=subject_desc">▼</a>
+	<th>収支
+	<th>金額<a href="./asset.php?p={{ now_page|e('url') }}&{{ search_string_e}}&sort=amount">▲</a> 
+			<a href="./asset.php?p={{ now_page|e('url') }}&{{ search_string_e}}&sort=amount_desc">▼</a>
+	<th>タグ
+{% for key, val in data %}
+<tr>
+	<td>{{ val.regist_id }}
+	<td>{{ val.date }}
+	<td>{{ val.subject }}
+	<td>
+	{% if null != val.income %}
+		収入
+		<td>{{ val.income | number_format }}
+	{% elseif null != val.spending %}
+		支出
+		<td>{{ val.spending | number_format }}
+		{% endif %}
+		円
+	<td>
+	{% for k,v in val.tags %}
+		#{{v}}
+	{% endfor %}
+	</td>
+{% endfor %}
+</table>
     
     <h2>グラフ挿入予定</h2>
     <ul>
         <li>月間推移</li>
-        <li>内訳</li>
         <li>その他もろもろ</li>
     </ul>
     
     <br>
+    <a href="regist.php">記帳する</a> <br>
     <a href="home.php">Home</a>
 </body>
 </html>
