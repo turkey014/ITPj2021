@@ -104,7 +104,7 @@ $r = $pre->execute();
 // COMMIT
 $dbh->commit();
 
-
+/*
 // email送信
 // ここらへんでエラーはいてたら composer.phar require swiftmailer/swiftmailer してないかも
 // Create the Transport
@@ -123,6 +123,7 @@ $message = (new Swift_Message('ユーザー登録用アクティべーション�
     ;
 
 var_dump($message); 
+*/
 // XXX 今はメールを送らないので、確認用に↓↓↓のコード
 $_SESSION['activation_token'] = $activation_token; // XXX 今はemailで送らないのでデバッグ用です。
 

@@ -1,9 +1,8 @@
 <?php
 declare(strict_types=1);
 //
-require_once(__DIR__ . '/../libs/init.php');
-require_once(__DIR__ . '/../libs/accountsCreate.php');
-require_once(__DIR__ . '/../Model/Modelmine.php');
+require_once(__DIR__ . '/../libs/init_auth.php');
+
 // 
 $template_filename = 'home.twig';
 
@@ -32,11 +31,6 @@ $first_week = date('w', strtotime('-1 day',$timestamp));
 // 
 $aryWeek = ['日', '月', '火', '水', '木', '金', '土'];
 
-//select テスト用
-$user_id = 2;
-$date_f = date('Y-m-j', $timestamp);
-$date_l = date('Y-m-t', $timestamp);
-
 
 // データ入力
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -46,9 +40,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 //当該月の regist を持ってくる
 $test = Modelmine::select_mon($ym);
 
-// 収入と支出の合計を配列で返す('income'=> XX,'spending'=>XX)
-$sum = Modelmine::sums($test);
 
+$all = Modelmine::select_all();
+// 収入と支出の合計を配列で返す('income'=> XX,'spending'=>XX)
+
+$sum = Modelmine::sums($test);
+$sums_all = Modelmine::sums($all);
+//var_dump($sums_all);
 $context = [
 	/* カレンダー用データ */
 	'ym' => $ym,
@@ -57,8 +55,9 @@ $context = [
     'end_month' => $end_month, 
     'first_week' => $first_week,
 	'aryWeek' => $aryWeek,
+	/* 総資産 */
+	'sums_all' => $sums_all,
 	/* 取得データ */ 
-	//'contents' => $array,
 	'contents' => $test,
 	'incomes' => $sum['inc'],
 	'spendings' => $sum['spe'],
